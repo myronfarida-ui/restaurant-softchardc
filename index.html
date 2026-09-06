@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#F9813A">
   <title>Chef C's Restaurant Dash - Phonics Diner</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -21,17 +25,29 @@
       --shadow: rgba(83, 59, 43, 0.15);
     }
 
-    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box; user-select: none; -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+
+    /* Text inputs need to stay selectable/editable on touch devices */
+    input, textarea {
+      user-select: text; -webkit-user-select: text; touch-action: auto;
+    }
+
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
     body {
-      margin: 0; padding: 20px 14px;
+      margin: 0;
+      padding: 20px 14px calc(20px + env(safe-area-inset-bottom, 0px)) 14px;
       font-family: 'Quicksand', sans-serif;
       background-color: #FDF6EC;
       background-image: radial-gradient(var(--wood-light) 12%, transparent 13%), radial-gradient(var(--wood-light) 12%, transparent 13%);
       background-size: 32px 32px; background-position: 0 0, 16px 16px;
       color: var(--wood-dark);
       display: flex; justify-content: center; align-items: center;
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
+      overflow-x: hidden;
     }
 
     #app-container {
@@ -319,6 +335,92 @@
       padding: 10px 16px; border-radius: 12px; margin-bottom: 8px; font-weight: 700;
     }
     .leader-row.highlight { background: #FFF3D6; border: 2px solid var(--gold); }
+
+    /* Touch-friendly active states (many mobile browsers don't fire :hover) */
+    .color-swatch:active { transform: scale(0.94); }
+    .customer-bubble:active { transform: scale(0.96); }
+    .catch-item:active { transform: scale(0.92); }
+    .item-crate button:active { transform: translateY(2px); }
+    .station-btn:active .ic { transform: scale(0.9); }
+
+    /* ============ RESPONSIVE: TABLET (iPad portrait / small laptop) ============ */
+    @media (max-width: 820px) {
+      #app-container { border-radius: 28px; }
+      .market-grid { grid-template-columns: repeat(4, 1fr); }
+      .recipe-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ============ RESPONSIVE: PHONE (portrait phones, small Android/iPhone) ============ */
+    @media (max-width: 600px) {
+      body { padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px)) 8px; }
+
+      #app-container {
+        border-width: 3px; border-radius: 20px;
+        box-shadow: 0 8px 0 var(--wood-dark), 0 14px 20px var(--shadow);
+      }
+
+      .top-bar { padding: 8px 12px; }
+      .clock-digital { font-size: 0.85rem; }
+      .analog-face { width: 34px; height: 34px; }
+      .coin-badge { font-size: 1rem; padding: 5px 12px; }
+
+      .station-nav { padding: 8px; gap: 6px; }
+      .station-btn { font-size: 0.68rem; padding: 6px 4px; }
+      .station-btn .ic { font-size: 20px; }
+
+      .screen { padding: 16px 12px; min-height: 460px; }
+      h1 { font-size: 1.5rem; }
+      h2 { font-size: 1.25rem; }
+      p.desc { font-size: 0.9rem; margin-bottom: 14px; }
+
+      .setup-card { padding: 16px 18px; max-width: 100%; }
+      .restaurant-input { font-size: 1rem; padding: 10px 12px; }
+      .color-swatch { height: 40px; }
+
+      .diner-stage { height: 220px; }
+      .customer-avatar { font-size: 56px; }
+      .restaurant-signboard { font-size: 0.85rem; padding: 5px 14px; }
+      .customer-actor.arrive { transform: translateX(min(65vw, 320px)); }
+      .customer-bubble { padding: 6px 12px; }
+
+      .recipe-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .recipe-item { font-size: 0.8rem; padding: 6px; }
+
+      .quiz-box, .catch-box { padding: 14px; max-width: 100%; }
+      .quiz-emoji { font-size: 52px; }
+      .quiz-word { font-size: 1.5rem; }
+      .quiz-btns button { padding: 12px; font-size: 0.95rem; }
+      .catch-title { font-size: 1.1rem; }
+      .catch-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .catch-item { font-size: 26px; padding: 8px 2px; }
+
+      .market-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+      .item-crate button { font-size: 0.72rem; }
+
+      .register-panel { padding: 16px 18px; max-width: 100%; }
+      .bill-display { font-size: 40px; }
+      .calc-display { font-size: 1.5rem; }
+      .calc-key { font-size: 1.05rem; padding: 12px 0; }
+
+      .leaderboard-board { padding: 16px; max-width: 100%; }
+      .leader-row { padding: 8px 12px; font-size: 0.9rem; }
+    }
+
+    /* ============ RESPONSIVE: VERY SMALL PHONES ============ */
+    @media (max-width: 380px) {
+      .market-grid { grid-template-columns: repeat(2, 1fr); }
+      .catch-grid { grid-template-columns: repeat(3, 1fr); }
+      .quiz-emoji { font-size: 44px; }
+      h1 { font-size: 1.3rem; }
+    }
+
+    /* ============ RESPONSIVE: LANDSCAPE PHONES (short viewport height) ============ */
+    @media (max-height: 480px) and (orientation: landscape) {
+      .screen { min-height: 0; padding: 10px 14px; }
+      .diner-stage { height: 160px; }
+      h1 { font-size: 1.2rem; margin-bottom: 4px; }
+      p.desc { margin-bottom: 8px; }
+    }
   </style>
 </head>
 <body>
@@ -611,9 +713,33 @@
     }
 
     // ===================== Sound Effects =====================
+    // A single, reused AudioContext works far more reliably across iOS
+    // Safari, Android Chrome, and desktop browsers than creating a brand
+    // new context on every sound (iOS in particular caps how many
+    // contexts a page may create, and requires the context to be
+    // resumed from within a real user gesture).
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        audioCtx = new AC();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+    // Unlock/resume audio on the very first tap/click anywhere, since some
+    // mobile browsers only allow audio to start inside a direct gesture.
+    ['touchstart', 'click', 'keydown'].forEach(evt => {
+      document.addEventListener(evt, () => getAudioContext(), { once: true, passive: true });
+    });
+
     function tone(freq, dur, type = 'sine') {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getAudioContext();
+        if (!ctx) return;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = type;
@@ -628,7 +754,8 @@
     // A little cash-register "cha-ching" for when the customer pays.
     function chaChing() {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getAudioContext();
+        if (!ctx) return;
         [880, 1320, 1760].forEach((freq, i) => {
           const start = ctx.currentTime + i * 0.11;
           const osc = ctx.createOscillator();
