@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chef C's Restaurant Dash - Phonics Diner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #FFFDF9;
+      --parchment: #F8F1E5;
+      --wood-dark: #533B2B;
+      --wood-mid: #875C36;
+      --wood-light: #D4A373;
+      --theme-main: #F9813A;
+      --theme-sub: #FFE8D6;
+      --soft-c-blue: #4895EF;
+      --hard-c-amber: #2B9348;
+      --gold: #FFC107;
+      --danger-red: #E63946;
+      --shadow: rgba(83, 59, 43, 0.15);
+    }
+
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0; padding: 20px 14px;
+      font-family: 'Quicksand', sans-serif;
+      background-color: #FDF6EC;
+      background-image: radial-gradient(var(--wood-light) 12%, transparent 13%), radial-gradient(var(--wood-light) 12%, transparent 13%);
+      background-size: 32px 32px; background-position: 0 0, 16px 16px;
+      color: var(--wood-dark);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh;
+    }
+
+    #app-container {
+      width: 100%; max-width: 920px;
+      background: var(--cream);
+      border: 5px solid var(--wood-dark);
+      border-radius: 36px;
+      box-shadow: 0 16px 0 var(--wood-dark), 0 24px 30px var(--shadow);
+      overflow: hidden; display: flex; flex-direction: column;
+      position: relative;
+    }
+
+    /* TOP HUD */
+    .top-bar {
+      background: var(--theme-main); padding: 10px 24px;
+      border-bottom: 5px solid var(--wood-dark);
+      display: flex; justify-content: space-between; align-items: center; color: white;
+      transition: background 0.3s ease;
+    }
+    .top-bar.hidden { display: none; }
+
+    .clock-widget {
+      display: flex; align-items: center; gap: 12px;
+      background: white; color: var(--wood-dark);
+      padding: 4px 14px 4px 8px; border-radius: 99px;
+      border: 3px solid var(--wood-dark); box-shadow: 0 3px 0 var(--wood-dark);
+    }
+    .analog-face {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 3px solid var(--wood-dark); background: #FFFDF0;
+      position: relative; flex-shrink: 0;
+    }
+    .hand {
+      position: absolute; bottom: 50%; left: 50%;
+      transform-origin: bottom center; border-radius: 4px;
+      background: var(--wood-dark);
+    }
+    .hand.hour { width: 3px; height: 12px; margin-left: -1.5px; }
+    .hand.minute { width: 2px; height: 17px; margin-left: -1px; background: var(--danger-red); }
+    .clock-center-dot {
+      position: absolute; top: 50%; left: 50%; width: 6px; height: 6px;
+      background: var(--wood-dark); border-radius: 50%; transform: translate(-50%, -50%);
+    }
+    .clock-digital { font-family: 'Fredoka One'; font-size: 1rem; }
+
+    .hud-metrics { display: flex; align-items: center; gap: 12px; }
+    .coin-badge {
+      background: var(--gold); color: var(--wood-dark);
+      border: 3px solid var(--wood-dark); border-radius: 99px;
+      padding: 6px 16px; font-weight: 700; font-size: 1.15rem;
+      box-shadow: 0 4px 0 var(--wood-dark);
+    }
+    .coin-badge.shake-loss { animation: shakeLoss 0.35s ease; background: #FFB4B4; }
+    @keyframes shakeLoss { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+    /* STATION NAV (bottom tab bar) */
+    .station-nav {
+      display: flex; gap: 10px; justify-content: center; padding: 10px 14px;
+      background: var(--parchment); border-top: 4px solid var(--wood-dark); flex-wrap: wrap;
+    }
+    .station-nav.hidden { display: none; }
+    .station-btn {
+      flex: 1; min-width: 80px; max-width: 150px; background: white;
+      border: 3px solid var(--wood-dark); border-radius: 16px; padding: 8px 6px;
+      font-family: 'Fredoka One'; font-size: 0.78rem; cursor: pointer;
+      box-shadow: 0 4px 0 var(--wood-light); display: flex; flex-direction: column;
+      align-items: center; gap: 2px; transition: transform 0.12s, background 0.2s, color 0.2s;
+      color: var(--wood-dark);
+    }
+    .station-btn .ic { font-size: 24px; }
+    .station-btn.active { background: var(--theme-main); color: white; box-shadow: 0 4px 0 var(--wood-dark); }
+    .station-btn:active { transform: translateY(3px); }
+
+    /* Screens */
+    .screen {
+      padding: 26px 22px; text-align: center;
+      display: none; min-height: 540px; flex-direction: column; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .screen.active { display: flex; animation: pop 0.3s ease-out forwards; }
+    @keyframes pop { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
+
+    h1, h2 { font-family: 'Fredoka One', cursive; margin: 0 0 10px 0; }
+    h1 { font-size: 2.1rem; color: var(--wood-dark); }
+    h2 { font-size: 1.7rem; color: var(--wood-mid); }
+    p.desc { font-size: 1.05rem; color: #725740; margin: 0 0 20px 0; max-width: 620px; line-height: 1.5; }
+
+    /* Buttons */
+    .btn {
+      font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+      padding: 12px 28px; border-radius: 20px; border: 3px solid var(--wood-dark);
+      background: var(--theme-main); color: white; cursor: pointer;
+      box-shadow: 0 6px 0 var(--wood-dark); transition: transform 0.1s ease, background 0.3s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--wood-dark); }
+    .btn.blue { background: var(--soft-c-blue); }
+    .btn.green { background: var(--hard-c-amber); }
+    .btn.gray { background: #A09489; font-size: 0.95rem; }
+
+    /* RESTAURANT SETUP / CUSTOMIZE FORM */
+    .setup-card {
+      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
+      padding: 24px 32px; width: 100%; max-width: 480px;
+      box-shadow: 0 8px 0 var(--parchment); margin-bottom: 20px;
+      display: flex; flex-direction: column; gap: 16px; text-align: left;
+    }
+    .input-group label {
+      font-family: 'Fredoka One'; font-size: 1.05rem; color: var(--wood-dark); display: block; margin-bottom: 6px;
+    }
+    .restaurant-input {
+      width: 100%; padding: 12px 16px; border-radius: 16px;
+      border: 3px solid var(--wood-dark); font-family: 'Quicksand', sans-serif;
+      font-size: 1.1rem; font-weight: 700; color: var(--wood-dark); outline: none;
+      background: #FFFDF8;
+    }
+    .restaurant-input:focus { border-color: var(--theme-main); }
+
+    .palette-picker {
+      display: flex; gap: 12px; justify-content: space-between; margin-top: 4px;
+    }
+    .color-swatch {
+      flex: 1; height: 48px; border-radius: 14px; border: 3px solid var(--wood-dark);
+      cursor: pointer; transition: transform 0.15s; position: relative;
+    }
+    .color-swatch.active::after {
+      content: '✓'; position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center; color: white;
+      font-family: 'Fredoka One'; font-size: 1.4rem; text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    }
+    .color-swatch:hover { transform: scale(1.08); }
+
+    /* DINER STAGE & CUSTOMER ARRIVAL */
+    .diner-stage {
+      background: linear-gradient(180deg, var(--theme-sub) 0%, #FFFDF8 100%);
+      border: 4px solid var(--wood-dark); border-radius: 28px;
+      width: 100%; max-width: 760px; height: 300px;
+      position: relative; margin-bottom: 16px; overflow: hidden;
+      box-shadow: inset 0 -12px 0 rgba(0,0,0,0.05); transition: background 0.3s;
+    }
+    .restaurant-signboard {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      background: white; border: 3px solid var(--wood-dark); border-radius: 16px;
+      padding: 6px 24px; font-family: 'Fredoka One'; font-size: 1.15rem; color: var(--wood-dark);
+      box-shadow: 0 4px 0 var(--wood-light); z-index: 10;
+    }
+    .counter-bar {
+      position: absolute; bottom: 0; width: 100%; height: 75px;
+      background: var(--wood-light); border-top: 5px solid var(--wood-dark);
+    }
+
+    .customer-actor {
+      position: absolute; bottom: 45px; left: -140px;
+      display: flex; flex-direction: column; align-items: center;
+      transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .customer-actor.arrive { transform: translateX(450px); }
+    .customer-avatar { font-size: 80px; filter: drop-shadow(0 6px 0 rgba(0,0,0,0.1)); }
+
+    .customer-bubble {
+      background: white; border: 3px solid var(--wood-dark); border-radius: 22px;
+      padding: 8px 16px; margin-bottom: 6px; box-shadow: 0 6px 0 var(--wood-light);
+      cursor: pointer; display: flex; align-items: center; gap: 8px;
+      animation: bubbleFloat 1.8s ease-in-out infinite alternate;
+      transition: transform 0.15s;
+    }
+    .customer-bubble:hover { transform: scale(1.08); border-color: var(--theme-main); }
+    @keyframes bubbleFloat { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+
+    .recipe-inspector {
+      background: var(--parchment); border: 4px dashed var(--wood-light); border-radius: 20px;
+      padding: 16px; width: 100%; max-width: 620px; margin-bottom: 16px;
+    }
+    .recipe-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .recipe-item {
+      background: white; border: 2px solid var(--wood-dark); border-radius: 14px;
+      padding: 8px; font-weight: 700; font-size: 0.9rem;
+    }
+
+    /* Balanced Phonics Quest - Quiz mode */
+    .quiz-box {
+      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
+      padding: 22px; width: 100%; max-width: 480px; box-shadow: 0 8px 0 var(--parchment);
+      margin-bottom: 18px;
+    }
+    .quiz-emoji { font-size: 70px; margin-bottom: 4px; cursor: pointer; }
+    .quiz-word { font-family: 'Fredoka One'; font-size: 2rem; color: var(--wood-dark); }
+    .quiz-btns { display: flex; gap: 12px; margin-top: 14px; }
+    .quiz-btns button {
+      flex: 1; padding: 16px; font-family: 'Fredoka One'; font-size: 1.15rem;
+      border: 3px solid var(--wood-dark); border-radius: 18px; color: white; cursor: pointer;
+    }
+
+    /* Balanced Phonics Quest - Catch mode */
+    .catch-box {
+      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
+      padding: 22px; width: 100%; max-width: 580px; box-shadow: 0 8px 0 var(--parchment);
+      margin-bottom: 18px;
+    }
+    .catch-title {
+      font-family: 'Fredoka One'; font-size: 1.4rem; color: var(--theme-main); margin: 0 0 4px 0;
+    }
+    .catch-progress-text { font-size: 0.95rem; color: #8A7660; margin: 0 0 6px 0; }
+    .catch-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px;
+    }
+    .catch-item {
+      background: var(--parchment); border: 3px solid var(--wood-dark); border-radius: 16px;
+      padding: 12px 4px; font-size: 34px; cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.3s ease, background 0.2s ease;
+    }
+    .catch-item:hover { transform: scale(1.1); }
+    .catch-item:active { transform: scale(0.95); }
+    .catch-item.correct { background: #DFF0D8; border-color: var(--hard-c-amber); opacity: 0.4; pointer-events: none; transform: scale(0.9); }
+    .catch-item.wrong { background: #FADBD8; border-color: var(--danger-red); opacity: 0.4; pointer-events: none; transform: scale(0.9); }
+
+    /* Market Grid */
+    .market-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+      background: #E8F0F2; padding: 14px; border-radius: 24px; border: 4px solid #B0BEC5;
+      width: 100%; max-width: 800px; margin-bottom: 16px;
+    }
+    .item-crate {
+      background: white; border: 3px solid var(--wood-dark); border-radius: 16px;
+      padding: 8px 4px; display: flex; flex-direction: column; align-items: center;
+    }
+    .item-crate.bought { background: #DFF0D8; }
+    .item-crate.bought button.remove-btn {
+      background: #FADBD8; color: var(--danger-red);
+    }
+    .basket-chip {
+      display: inline-block; cursor: pointer; font-size: 1.3rem; padding: 2px 5px;
+      border-radius: 8px; transition: transform 0.15s, background 0.15s;
+    }
+    .basket-chip:hover { transform: scale(1.18); background: #FADBD8; }
+    .item-crate button {
+      background: var(--gold); border: 2px solid var(--wood-dark); border-radius: 8px;
+      font-size: 0.8rem; font-weight: 700; padding: 4px 8px; cursor: pointer; width: 90%;
+    }
+
+    .score-float {
+      position: absolute; font-family: 'Fredoka One'; font-size: 1.8rem; pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards; z-index: 50;
+    }
+    .score-float.plus { color: var(--hard-c-amber); text-shadow: 2px 2px 0 white; }
+    .score-float.minus { color: var(--danger-red); text-shadow: 2px 2px 0 white; }
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translateY(0) scale(0.6); }
+      30% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-50px) scale(1); }
+    }
+
+    /* KITCHEN STATION */
+    #kitchen-result h2 { margin-top: 4px; }
+
+    /* CASH REGISTER */
+    .register-panel {
+      background: white; border: 5px solid var(--wood-dark); border-radius: 28px;
+      padding: 22px 26px; width: 100%; max-width: 400px; box-shadow: 0 10px 0 var(--wood-light);
+    }
+    .bill-display { font-size: 52px; letter-spacing: 2px; }
+    .calc-display {
+      background: #23301F; color: #8BFF9B; font-family: 'Fredoka One'; font-size: 2rem;
+      border-radius: 12px; padding: 10px; margin: 14px 0; min-height: 46px;
+      border: 3px solid var(--wood-dark); letter-spacing: 2px;
+    }
+    .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .calc-key {
+      background: var(--wood-light); border: 3px solid var(--wood-dark); border-radius: 12px;
+      font-family: 'Fredoka One'; font-size: 1.25rem; padding: 14px 0; cursor: pointer;
+      box-shadow: 0 4px 0 var(--wood-dark); color: var(--wood-dark);
+    }
+    .calc-key:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--wood-dark); }
+    .calc-key.clear { background: var(--danger-red); color: white; }
+    .calc-key.enter { background: var(--hard-c-amber); color: white; }
+
+    .leaderboard-board {
+      background: white; border: 5px solid var(--wood-dark); border-radius: 28px;
+      padding: 24px; width: 100%; max-width: 580px; box-shadow: 0 10px 0 var(--wood-light);
+      margin-bottom: 20px;
+    }
+    .leader-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px; border-radius: 12px; margin-bottom: 8px; font-weight: 700;
+    }
+    .leader-row.highlight { background: #FFF3D6; border: 2px solid var(--gold); }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- TOP BAR -->
+    <header class="top-bar hidden" id="top-bar">
+      <div class="clock-widget">
+        <div class="analog-face">
+          <div class="hand hour" id="clock-hour"></div>
+          <div class="hand minute" id="clock-minute"></div>
+          <div class="clock-center-dot"></div>
+        </div>
+        <div class="clock-digital" id="clock-digital">09:00 AM</div>
+      </div>
+      <div class="hud-metrics">
+        <div class="coin-badge" id="coin-badge">💰 <span id="coin-counter">40</span></div>
+      </div>
+    </header>
+
+    <!-- 0. INTRO & RESTAURANT CUSTOMIZATION -->
+    <section id="screen-intro" class="screen active">
+      <h1>🎨 Design Your Restaurant!</h1>
+      <p class="desc">Give your restaurant a cool name and pick your favorite theme color!</p>
+
+      <div class="setup-card">
+        <div class="input-group">
+          <label for="restaurant-name-input">Restaurant Name:</label>
+          <input type="text" id="restaurant-name-input" class="restaurant-input" maxlength="24" value="Chef C's Bistro">
+        </div>
+
+        <div class="input-group">
+          <label>Choose Theme Color:</label>
+          <div class="palette-picker">
+            <div class="color-swatch active" style="background:#F9813A;" onclick="selectTheme('#F9813A', '#FFE8D6', this)" title="Warm Apricot"></div>
+            <div class="color-swatch" style="background:#FF6F91;" onclick="selectTheme('#FF6F91', '#FFE3EC', this)" title="Sweet Berry"></div>
+            <div class="color-swatch" style="background:#2B9348;" onclick="selectTheme('#2B9348', '#E2F7E1', this)" title="Fresh Mint"></div>
+            <div class="color-swatch" style="background:#4895EF;" onclick="selectTheme('#4895EF', '#E3F0FF', this)" title="Ocean Breeze"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" style="font-size:1.3rem; padding:14px 40px;" onclick="confirmDinerSetup()">Start My Diner Shift! 🔔</button>
+    </section>
+
+    <!-- 1. STOREFRONT STATION -->
+    <section id="screen-diner" class="screen">
+      <div class="diner-stage">
+        <div class="restaurant-signboard" id="stage-signboard">Chef C's Bistro</div>
+        <div class="customer-actor" id="customer-actor">
+          <div class="customer-bubble" onclick="inspectOrder()">
+            <span style="font-size: 32px;" id="order-dish-icon">🍛</span>
+            <span style="font-weight:700;" id="order-dish-text">Tap to view recipe!</span>
+          </div>
+          <div class="customer-avatar" id="customer-avatar">🦊</div>
+        </div>
+        <div class="counter-bar"></div>
+      </div>
+
+      <div class="recipe-inspector" id="recipe-sheet" style="display: none;">
+        <h3 id="recipe-name" style="margin: 0 0 6px 0; color: var(--theme-main);">Recipe</h3>
+        <p style="margin: 0; font-size: 0.9rem; color: #634735;">Required Phonics Ingredients:</p>
+        <div class="recipe-grid" id="recipe-req-box"></div>
+      </div>
+
+      <p class="desc" style="margin: 6px 0 0; font-size: 0.95rem;">👇 Use the stations below: earn coins, shop, then cook!</p>
+    </section>
+
+    <!-- 2. PHONICS QUEST STATION (BALANCED 50/50 K vs S, quiz + catch modes) -->
+    <section id="screen-quest" class="screen">
+      <h2>Pantry Phonics Quest</h2>
+      <p class="desc" id="quest-instructions">Answer correctly (+10 Coins). Wrong answers deduct (-5 Coins)!</p>
+
+      <div class="quiz-box" id="quiz-box">
+        <div class="quiz-emoji" id="q-emoji" onclick="speakActiveWord()">🥕</div>
+        <div class="quiz-word" id="q-word">Carrot</div>
+        <div style="font-size: 0.85rem; color: #8A7660;">Tap emoji to hear word 🔊</div>
+
+        <div class="quiz-btns">
+          <button style="background: var(--hard-c-amber);" onclick="submitQuizAnswer('hard', this)">Hard C (/k/)</button>
+          <button style="background: var(--soft-c-blue);" onclick="submitQuizAnswer('soft', this)">Soft C (/s/)</button>
+        </div>
+      </div>
+
+      <div class="catch-box" id="catch-box" style="display:none;">
+        <div class="catch-title" id="catch-target-title">🎣 Catch 5 Soft C items!</div>
+        <p class="catch-progress-text">Caught: <span id="catch-progress">0</span> / <span id="catch-goal">5</span></p>
+        <div class="catch-grid" id="catch-grid"></div>
+      </div>
+    </section>
+
+    <!-- 3. MARKET STATION -->
+    <section id="screen-market" class="screen">
+      <h2>Grand Supermarket</h2>
+      <p class="desc">Buy exactly what the customer requested (<span id="market-price-hint">5</span> Coins each).</p>
+
+      <div style="background:white; border:3px solid var(--wood-dark); border-radius:16px; padding:10px 18px; margin-bottom:12px;">
+        <span style="font-weight:700; color:var(--theme-main);">Basket: </span>
+        <span id="market-basket-icons">🛒 (Empty)</span>
+        <div style="font-size:0.78rem; color:#8A7660; margin-top:4px;">Tap an ingredient (in the basket or on the shelf) to remove it</div>
+      </div>
+
+      <div class="market-grid" id="market-shelf"></div>
+
+      <button class="btn green" onclick="cookAndServe()">Done Shopping — Cook Now! 🍳</button>
+    </section>
+
+    <!-- 4. KITCHEN STATION -->
+    <section id="screen-kitchen" class="screen">
+      <h2>🍳 Kitchen</h2>
+
+      <div class="recipe-inspector" id="kitchen-order-card">
+        <h3 id="kitchen-order-title" style="margin:0 0 6px 0; color:var(--theme-main);">No active order</h3>
+        <p style="margin:0; font-size:0.9rem; color:#634735;">Ingredients Checklist:</p>
+        <div class="recipe-grid" id="kitchen-checklist"></div>
+      </div>
+
+      <div id="kitchen-cooking-anim" style="display:none;">
+        <div style="font-size:70px; animation:bounce 0.8s infinite alternate;">🍲🔥</div>
+        <p class="desc">Cooking...</p>
+      </div>
+
+      <div id="kitchen-result" style="display:none;"></div>
+
+      <button class="btn green" id="kitchen-cook-btn" onclick="cookAndServe()">Cook &amp; Serve! 🍲</button>
+    </section>
+
+    <!-- 5. CASH REGISTER (change-making mini game) -->
+    <section id="screen-register" class="screen">
+      <h2>🧾 Give the Right Change!</h2>
+      <div class="register-panel" id="register-panel">
+        <div class="bill-display" id="register-bill">💵</div>
+        <p class="desc" id="register-info" style="margin:6px 0 14px;">Price: 🪙 0 — Customer pays with 🪙 0</p>
+        <div class="calc-display" id="calc-display">_</div>
+        <div class="calc-grid">
+          <button class="calc-key" onclick="pressDigit('1')">1</button>
+          <button class="calc-key" onclick="pressDigit('2')">2</button>
+          <button class="calc-key" onclick="pressDigit('3')">3</button>
+          <button class="calc-key" onclick="pressDigit('4')">4</button>
+          <button class="calc-key" onclick="pressDigit('5')">5</button>
+          <button class="calc-key" onclick="pressDigit('6')">6</button>
+          <button class="calc-key" onclick="pressDigit('7')">7</button>
+          <button class="calc-key" onclick="pressDigit('8')">8</button>
+          <button class="calc-key" onclick="pressDigit('9')">9</button>
+          <button class="calc-key clear" onclick="clearDisplay()">C</button>
+          <button class="calc-key" onclick="pressDigit('0')">0</button>
+          <button class="calc-key enter" onclick="submitChange()">✅</button>
+        </div>
+        <p id="register-feedback" style="min-height:24px; font-weight:700; margin-top:12px;"></p>
+      </div>
+    </section>
+
+    <!-- 6. DAY SUMMARY / LEADERBOARD -->
+    <section id="screen-closing" class="screen">
+      <div style="font-size: 70px; margin-bottom: 8px;">🌙🚪</div>
+      <h1>04:00 PM - Restaurant Closed!</h1>
+      <p class="desc">Shift ended! Here is how your daily restaurant revenue compares to the town's top chefs:</p>
+
+      <div class="leaderboard-board" id="leaderboard-display"></div>
+
+      <button class="btn" style="font-size: 1.2rem; padding: 14px 36px;" onclick="restartEntireGame()">Play Next Day 🔁</button>
+    </section>
+
+    <!-- STATION NAV (bottom tab bar) -->
+    <nav class="station-nav hidden" id="station-nav">
+      <button class="station-btn" data-target="screen-diner" onclick="switchStation('screen-diner')"><span class="ic">🏠</span>Storefront</button>
+      <button class="station-btn" data-target="screen-quest" onclick="switchStation('screen-quest')"><span class="ic">🎯</span>Quest</button>
+      <button class="station-btn" data-target="screen-market" onclick="switchStation('screen-market')"><span class="ic">🛒</span>Market</button>
+      <button class="station-btn" data-target="screen-kitchen" onclick="switchStation('screen-kitchen')"><span class="ic">🍳</span>Kitchen</button>
+    </nav>
+  </div>
+
+  <script>
+    const PANTRY = [
+      { id: "carrot", word: "Carrot", sound: "hard", emoji: "🥕" },
+      { id: "cabbage", word: "Cabbage", sound: "hard", emoji: "🥬" },
+      { id: "corn", word: "Corn", sound: "hard", emoji: "🌽" },
+      { id: "cucumber", word: "Cucumber", sound: "hard", emoji: "🥒" },
+      { id: "cupcake", word: "Cupcake", sound: "hard", emoji: "🧁" },
+      { id: "cookie", word: "Cookie", sound: "hard", emoji: "🍪" },
+      { id: "candy", word: "Candy", sound: "hard", emoji: "🍬" },
+      { id: "curry", word: "Curry", sound: "hard", emoji: "🍛" },
+      { id: "coconut", word: "Coconut", sound: "hard", emoji: "🥥" },
+      { id: "cake", word: "Cake", sound: "hard", emoji: "🍰" },
+      { id: "celery", word: "Celery", sound: "soft", emoji: "🌱" },
+      { id: "cinnamon", word: "Cinnamon", sound: "soft", emoji: "🪵" },
+      { id: "cereal", word: "Cereal", sound: "soft", emoji: "🥣" },
+      { id: "citrus", word: "Citrus", sound: "soft", emoji: "🍋" },
+      { id: "cider", word: "Cider", sound: "soft", emoji: "🧃" },
+      { id: "rice", word: "Rice", sound: "soft", emoji: "🍚" },
+      { id: "ice", word: "Ice", sound: "soft", emoji: "🧊" },
+      { id: "lettuce", word: "Lettuce", sound: "soft", emoji: "🥗" },
+      { id: "spice", word: "Spice", sound: "soft", emoji: "🧂" },
+      { id: "juice", word: "Juice", sound: "soft", emoji: "🥤" }
+    ];
+
+    // Recipes are organized into tiers that unlock as the player serves more
+    // customers. Later tiers use more ingredients and feel more "advanced",
+    // but the PROFIT margin (see computeRecipePrice) stays modest on purpose:
+    // most of a dish's price just covers its own ingredient cost, so kids
+    // still need to keep doing Phonics Quests to fund their next order
+    // instead of coasting on one big payday.
+    const RECIPE_TIERS = [
+      {
+        label: "Kids Menu",
+        minServed: 0,
+        recipes: [
+          { id: "snack1", name: "Fresh Garden Cup", icon: "🥗", req: ["cucumber", "celery", "lettuce"] },
+          { id: "snack2", name: "Sweet Snack Box", icon: "🍪", req: ["cookie", "candy", "cake"] },
+          { id: "snack3", name: "Morning Bowl", icon: "🥣", req: ["cereal", "rice", "cider"] }
+        ]
+      },
+      {
+        label: "Bistro Menu",
+        minServed: 2,
+        recipes: [
+          { id: "curry", name: "Cinnamon Curry", icon: "🍛", req: ["carrot", "corn", "cinnamon", "rice"] },
+          { id: "salad", name: "Zesty Green Salad", icon: "🥗", req: ["cucumber", "cabbage", "celery", "citrus"] },
+          { id: "dessert", name: "Sweet Dessert Bowl", icon: "🍧", req: ["cupcake", "cookie", "cereal", "ice"] },
+          { id: "juice", name: "Island Orchard Juice", icon: "🍹", req: ["coconut", "cider", "juice", "ice"] }
+        ]
+      },
+      {
+        label: "Gourmet Menu",
+        minServed: 5,
+        recipes: [
+          { id: "gcurry", name: "Grand Harvest Curry", icon: "🍲", req: ["carrot", "corn", "cinnamon", "rice", "coconut"] },
+          { id: "gsalad", name: "Deluxe Garden Feast", icon: "🥙", req: ["cucumber", "cabbage", "celery", "citrus", "lettuce"] },
+          { id: "gdessert", name: "Royal Dessert Platter", icon: "🍨", req: ["cupcake", "cookie", "cereal", "ice", "cake"] },
+          { id: "gjuice", name: "Tropical Fusion Cooler", icon: "🧋", req: ["coconut", "cider", "juice", "ice", "citrus"] }
+        ]
+      },
+      {
+        label: "Master Chef Menu",
+        minServed: 8,
+        recipes: [
+          { id: "mcurry", name: "Master Chef's Banquet Curry", icon: "👑", req: ["carrot", "corn", "cinnamon", "rice", "coconut", "curry"] },
+          { id: "msalad", name: "Ultimate Garden Symphony", icon: "🌿", req: ["cucumber", "cabbage", "celery", "citrus", "lettuce", "spice"] },
+          { id: "mdessert", name: "Legendary Dessert Tower", icon: "🎂", req: ["cupcake", "cookie", "cereal", "ice", "cake", "candy"] },
+          { id: "mjuice", name: "Supreme Tropical Cooler", icon: "🍹", req: ["coconut", "cider", "juice", "ice", "citrus", "cake"] }
+        ]
+      }
+    ];
+
+    const CUSTOMERS = ["🦊", "🐼", "🐻", "🐰", "🦁", "🐨"];
+
+    // Ingredient price was lowered from 10 -> 5 coins so kids don't feel priced out
+    // of shopping after only one or two Quest rounds. This keeps the Quest stations
+    // feeling rewarding without making the Market a grind.
+    const ITEM_PRICE = 5;
+
+    let customRestaurantName = "Chef C's Bistro";
+    let coins = 40;
+    let basket = [];
+    let currentCustomer = null;
+    let currentRecipe = null;
+    let totalServed = 0;
+
+    let lastSound = null;
+    let currentQuiz = null;
+
+    // Quest mode variety: alternate between the multiple-choice quiz and the
+    // "catch" mini-game so kids get a mix of both styles of phonics practice.
+    let questMode = 'quiz';
+    let catchTarget = null;
+    let lastCatchTarget = null;
+    const CATCH_GOAL = 5;
+    let catchFound = 0;
+
+    let gameMinutes = 9 * 60;
+    const closingMinutes = 16 * 60;
+    let clockInterval = null;
+
+    let registerState = null;
+
+    function selectTheme(mainColor, subColor, el) {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      document.documentElement.style.setProperty('--theme-main', mainColor);
+      document.documentElement.style.setProperty('--theme-sub', subColor);
+      tone(500, 0.08);
+    }
+
+    function confirmDinerSetup() {
+      tone(650, 0.12);
+      const nameInput = document.getElementById('restaurant-name-input');
+      customRestaurantName = nameInput.value.trim() || "Chef C's Diner";
+      document.getElementById('stage-signboard').textContent = customRestaurantName;
+      startDinerDay();
+    }
+
+    // ===================== Sound Effects =====================
+    function tone(freq, dur, type = 'sine') {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    // A little cash-register "cha-ching" for when the customer pays.
+    function chaChing() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [880, 1320, 1760].forEach((freq, i) => {
+          const start = ctx.currentTime + i * 0.11;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.linearRampToValueAtTime(0.13, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.28);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(start); osc.stop(start + 0.3);
+        });
+      } catch (e) {}
+    }
+
+    // A small bell "ding" for when the register drawer opens.
+    function registerDing() {
+      tone(1000, 0.18, 'triangle');
+      setTimeout(() => tone(1300, 0.15, 'triangle'), 90);
+    }
+
+    function pronounce(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US'; u.rate = 0.85;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    // Which menu tier the player is currently on, based on customers served.
+    function getCurrentTierIndex() {
+      let idx = 0;
+      RECIPE_TIERS.forEach((t, i) => { if (totalServed >= t.minServed) idx = i; });
+      return idx;
+    }
+
+    // Price = ingredient cost + a small, slowly-growing profit. Keeping the
+    // profit modest (instead of a big flat bonus) means a dish's payout is
+    // mostly "give back what you spent on ingredients", so kids still need
+    // Quest coins to fund their next order.
+    function computeRecipePrice(req, tierIndex) {
+      const profit = 8 + tierIndex * 3;
+      return req.length * ITEM_PRICE + profit;
+    }
+
+    function showLevelUpToast(label) {
+      tone(750, 0.12);
+      setTimeout(() => tone(950, 0.18), 120);
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:absolute; top:70px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--wood-dark); padding:10px 22px; border-radius:16px; border:3px solid var(--wood-dark); font-family:"Fredoka One"; font-size:1rem; z-index:60; box-shadow:0 4px 0 var(--wood-dark); animation:floatUp 2.4s ease-out forwards; white-space:nowrap;';
+      toast.textContent = `🎉 New Menu Unlocked: ${label}!`;
+      document.getElementById('app-container').appendChild(toast);
+      setTimeout(() => toast.remove(), 2400);
+    }
+
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ===================== Screen / Station control =====================
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+
+      const topBar = document.getElementById('top-bar');
+      const nav = document.getElementById('station-nav');
+      const hideChrome = (id === 'screen-intro' || id === 'screen-closing' || id === 'screen-register');
+      topBar.classList.toggle('hidden', hideChrome);
+      nav.classList.toggle('hidden', hideChrome);
+
+      document.querySelectorAll('.station-btn').forEach(b => b.classList.toggle('active', b.dataset.target === id));
+    }
+
+    function switchStation(id) {
+      tone(450, 0.06);
+      if (id === 'screen-market') renderMarket();
+      if (id === 'screen-kitchen') renderKitchenStation(false);
+      if (id === 'screen-quest') initQuestRound();
+      showScreen(id);
+    }
+
+    function updateCoins(val, isLoss = false) {
+      coins = Math.max(0, val);
+      document.getElementById('coin-counter').textContent = coins;
+      const badge = document.getElementById('coin-badge');
+      badge.classList.remove('shake-loss');
+      if (isLoss) {
+        void badge.offsetWidth;
+        badge.classList.add('shake-loss');
+      }
+    }
+
+    // ===================== Day / Clock =====================
+    function startDinerDay() {
+      gameMinutes = 9 * 60;
+      updateAnalogClockDisplay();
+      showScreen('screen-diner');
+
+      clearInterval(clockInterval);
+      clockInterval = setInterval(() => {
+        gameMinutes++;
+        updateAnalogClockDisplay();
+        if (gameMinutes >= closingMinutes) {
+          endOfDay();
+        }
+      }, 1000);
+
+      spawnNewCustomer();
+    }
+
+    function updateAnalogClockDisplay() {
+      const hours = Math.floor(gameMinutes / 60);
+      const mins = gameMinutes % 60;
+      const minAngle = mins * 6;
+      const hourAngle = (hours % 12) * 30 + (mins / 2);
+
+      document.getElementById('clock-minute').style.transform = `rotate(${minAngle}deg)`;
+      document.getElementById('clock-hour').style.transform = `rotate(${hourAngle}deg)`;
+
+      const period = hours >= 12 ? "PM" : "AM";
+      const displayHour = hours > 12 ? hours - 12 : hours;
+      const padMins = mins < 10 ? "0" + mins : mins;
+      document.getElementById('clock-digital').textContent = `${displayHour}:${padMins} ${period}`;
+    }
+
+    // ===================== Storefront =====================
+    function spawnNewCustomer() {
+      const actor = document.getElementById('customer-actor');
+      actor.classList.remove('arrive');
+      document.getElementById('recipe-sheet').style.display = 'none';
+      basket = [];
+
+      setTimeout(() => {
+        currentCustomer = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)];
+
+        const tierIndex = getCurrentTierIndex();
+        const tier = RECIPE_TIERS[tierIndex];
+        const recipeBase = tier.recipes[Math.floor(Math.random() * tier.recipes.length)];
+        const price = computeRecipePrice(recipeBase.req, tierIndex);
+        currentRecipe = { ...recipeBase, price, tierIndex, tierLabel: tier.label };
+
+        document.getElementById('customer-avatar').textContent = currentCustomer;
+        document.getElementById('order-dish-icon').textContent = currentRecipe.icon;
+        document.getElementById('order-dish-text').textContent = currentRecipe.name;
+
+        document.getElementById('recipe-name').textContent = `${currentRecipe.icon} ${currentRecipe.name} — ${currentRecipe.tierLabel} (Earns 🪙 ${currentRecipe.price})`;
+        const reqBox = document.getElementById('recipe-req-box');
+        reqBox.innerHTML = '';
+        currentRecipe.req.forEach(id => {
+          const item = PANTRY.find(p => p.id === id);
+          reqBox.innerHTML += `
+            <div class="recipe-item">
+              <span style="font-size:24px;">${item.emoji}</span><br>${item.word}
+            </div>
+          `;
+        });
+
+        actor.classList.add('arrive');
+        tone(600, 0.1);
+      }, 400);
+    }
+
+    function inspectOrder() {
+      const sheet = document.getElementById('recipe-sheet');
+      sheet.style.display = sheet.style.display === 'none' ? 'block' : 'none';
+      tone(450, 0.08);
+    }
+
+    // ===================== Phonics Quest =====================
+    // Picks a random mode (quiz or catch) each round for variety.
+    function initQuestRound() {
+      questMode = Math.random() > 0.5 ? 'quiz' : 'catch';
+      const instructions = document.getElementById('quest-instructions');
+      const quizBox = document.getElementById('quiz-box');
+      const catchBox = document.getElementById('catch-box');
+
+      if (questMode === 'quiz') {
+        quizBox.style.display = 'block';
+        catchBox.style.display = 'none';
+        instructions.textContent = 'Answer correctly (+10 Coins). Wrong answers deduct (-5 Coins)!';
+        nextQuizItem();
+      } else {
+        quizBox.style.display = 'none';
+        catchBox.style.display = 'block';
+        instructions.textContent = 'Click every matching ingredient! (+10 each, -5 for a mistake)';
+        startCatchRound();
+      }
+    }
+
+    function nextQuizItem() {
+      const targetSound = lastSound === 'hard' ? 'soft' : (lastSound === 'soft' ? 'hard' : (Math.random() > 0.5 ? 'hard' : 'soft'));
+      const pool = PANTRY.filter(i => i.sound === targetSound);
+      currentQuiz = pool[Math.floor(Math.random() * pool.length)];
+      lastSound = targetSound;
+
+      document.getElementById('q-emoji').textContent = currentQuiz.emoji;
+      document.getElementById('q-word').textContent = currentQuiz.word;
+      pronounce(currentQuiz.word);
+    }
+
+    function speakActiveWord() {
+      if (currentQuiz) pronounce(currentQuiz.word);
+    }
+
+    function submitQuizAnswer(ans, btnEl) {
+      if (ans === currentQuiz.sound) {
+        tone(700, 0.15);
+        updateCoins(coins + 10);
+        spawnScoreFloat("+10", true, btnEl);
+      } else {
+        tone(220, 0.2, 'sawtooth');
+        updateCoins(coins - 5, true);
+        spawnScoreFloat("-5", false, btnEl);
+      }
+      setTimeout(initQuestRound, 500);
+    }
+
+    // "Catch" style quest: kid clicks the 5 ingredients matching the target
+    // sound out of a mixed grid of 12 items.
+    function startCatchRound() {
+      catchTarget = lastCatchTarget === 'hard' ? 'soft' : (lastCatchTarget === 'soft' ? 'hard' : (Math.random() > 0.5 ? 'hard' : 'soft'));
+      lastCatchTarget = catchTarget;
+      catchFound = 0;
+
+      document.getElementById('catch-progress').textContent = '0';
+      document.getElementById('catch-goal').textContent = CATCH_GOAL;
+      const label = catchTarget === 'hard' ? 'Hard C (/k/)' : 'Soft C (/s/)';
+      document.getElementById('catch-target-title').textContent = `🎣 Catch ${CATCH_GOAL} ${label} items!`;
+
+      const matches = shuffleArray(PANTRY.filter(p => p.sound === catchTarget)).slice(0, CATCH_GOAL);
+      const distractors = shuffleArray(PANTRY.filter(p => p.sound !== catchTarget)).slice(0, 7);
+      const items = shuffleArray([...matches, ...distractors]);
+
+      const grid = document.getElementById('catch-grid');
+      grid.innerHTML = '';
+      items.forEach(item => {
+        const cell = document.createElement('div');
+        cell.className = 'catch-item';
+        cell.textContent = item.emoji;
+        cell.title = item.word;
+        cell.onclick = () => handleCatchClick(item, cell);
+        grid.appendChild(cell);
+      });
+
+      pronounce(`Catch the ${catchTarget === 'hard' ? 'hard C' : 'soft C'} items`);
+    }
+
+    function handleCatchClick(item, el) {
+      if (item.sound === catchTarget) {
+        tone(700, 0.15);
+        el.classList.add('correct');
+        updateCoins(coins + 10);
+        spawnScoreFloat('+10', true, el);
+        catchFound++;
+        document.getElementById('catch-progress').textContent = catchFound;
+        if (catchFound >= CATCH_GOAL) {
+          setTimeout(() => { tone(900, 0.3); initQuestRound(); }, 600);
+        }
+      } else {
+        tone(220, 0.2, 'sawtooth');
+        el.classList.add('wrong');
+        updateCoins(coins - 5, true);
+        spawnScoreFloat('-5', false, el);
+      }
+    }
+
+    function spawnScoreFloat(text, isPos, el) {
+      const float = document.createElement('div');
+      float.className = `score-float ${isPos ? 'plus' : 'minus'}`;
+      float.textContent = text;
+      const rect = el.getBoundingClientRect();
+      const parent = document.getElementById('app-container').getBoundingClientRect();
+      float.style.left = (rect.left - parent.left + 30) + 'px';
+      float.style.top = (rect.top - parent.top - 10) + 'px';
+      document.getElementById('app-container').appendChild(float);
+      setTimeout(() => float.remove(), 800);
+    }
+
+    // ===================== Market =====================
+    function renderMarket() {
+      document.getElementById('market-price-hint').textContent = ITEM_PRICE;
+      const shelf = document.getElementById('market-shelf');
+      shelf.innerHTML = '';
+      PANTRY.forEach(item => {
+        const inBasket = basket.includes(item.id);
+        shelf.innerHTML += `
+          <div class="item-crate ${inBasket ? 'bought' : ''}">
+            <div style="font-size: 30px;">${item.emoji}</div>
+            <strong style="font-size:0.75rem; margin:2px 0;">${item.word}</strong>
+            ${inBasket
+              ? `<button class="remove-btn" onclick="removeMarketItem('${item.id}')">✕ Remove</button>`
+              : `<button onclick="buyMarketItem('${item.id}')">🪙 ${ITEM_PRICE}</button>`}
+          </div>
+        `;
+      });
+      updateBasketHUD();
+    }
+
+    function buyMarketItem(id) {
+      if (coins >= ITEM_PRICE) {
+        updateCoins(coins - ITEM_PRICE);
+        basket.push(id);
+        tone(900, 0.08);
+        renderMarket();
+      } else {
+        tone(220, 0.2, 'sawtooth');
+        alert("Not enough coins! Go complete a Phonics Quest.");
+      }
+    }
+
+    // Removes one copy of an ingredient from the basket and refunds its
+    // coin cost, so kids can fix a mistake without losing money for it.
+    function removeMarketItem(id) {
+      const idx = basket.indexOf(id);
+      if (idx === -1) return;
+      basket.splice(idx, 1);
+      updateCoins(coins + ITEM_PRICE);
+      tone(350, 0.1, 'triangle');
+      renderMarket();
+    }
+
+    function updateBasketHUD() {
+      const box = document.getElementById('market-basket-icons');
+      if (basket.length === 0) {
+        box.textContent = "🛒 (Empty)";
+      } else {
+        box.innerHTML = basket.map(id => {
+          const item = PANTRY.find(p => p.id === id);
+          return `<span class="basket-chip" title="Remove ${item.word}" onclick="removeMarketItem('${id}')">${item.emoji}</span>`;
+        }).join(' ');
+      }
+    }
+
+    // ===================== Kitchen =====================
+    function renderKitchenStation(cooking) {
+      document.getElementById('kitchen-cooking-anim').style.display = cooking ? 'block' : 'none';
+      document.getElementById('kitchen-result').style.display = 'none';
+      document.getElementById('kitchen-order-card').style.display = cooking ? 'none' : 'block';
+      document.getElementById('kitchen-cook-btn').style.display = cooking ? 'none' : 'inline-flex';
+
+      if (!cooking) {
+        document.getElementById('kitchen-order-title').textContent = currentRecipe
+          ? `${currentRecipe.icon} ${currentRecipe.name} — ${currentRecipe.tierLabel}` : 'No active order';
+        const list = document.getElementById('kitchen-checklist');
+        list.innerHTML = '';
+        if (currentRecipe) {
+          currentRecipe.req.forEach(id => {
+            const item = PANTRY.find(p => p.id === id);
+            const has = basket.includes(id);
+            list.innerHTML += `
+              <div class="recipe-item" style="${has ? 'background:#DFF0D8;border-color:#3C763D;' : ''}">
+                ${has ? '✅' : '⬜'} ${item.emoji} ${item.word}
+              </div>`;
+          });
+        }
+      }
+    }
+
+    function cookAndServe() {
+      if (!currentRecipe) return;
+      if (basket.length === 0) {
+        tone(220, 0.2, 'sawtooth');
+        alert("Your shopping basket is empty! Buy ingredients in the Market first.");
+        switchStation('screen-market');
+        return;
+      }
+
+      tone(400, 0.12, 'triangle');
+      switchStation('screen-kitchen');
+      renderKitchenStation(true);
+
+      const req = [...currentRecipe.req].sort();
+      const bought = [...basket].sort();
+      const isExact = req.length === bought.length && req.every((val, i) => val === bought[i]);
+      const missing = currentRecipe.req.filter(id => !basket.includes(id));
+      const extra = basket.filter(id => !currentRecipe.req.includes(id));
+
+      setTimeout(() => {
+        document.getElementById('kitchen-cooking-anim').style.display = 'none';
+        const resultBox = document.getElementById('kitchen-result');
+        resultBox.style.display = 'block';
+
+        if (isExact) {
+          tone(800, 0.3);
+          resultBox.innerHTML = `
+            <div style="font-size:70px;">${currentRecipe.icon}✨</div>
+            <h2 style="color:var(--hard-c-amber);">Perfect Dish!</h2>
+            <p class="desc">${currentCustomer} can't wait to pay you!</p>
+          `;
+          basket = [];
+          setTimeout(() => openRegister(currentRecipe.price), 1300);
+        } else {
+          tone(200, 0.35, 'sawtooth');
+          const msg = extra.length
+            ? `Wrong ingredients: ${extra.map(id => PANTRY.find(p => p.id === id).word).join(', ')}`
+            : `Missing: ${missing.map(id => PANTRY.find(p => p.id === id).word).join(', ')}`;
+          resultBox.innerHTML = `
+            <div style="font-size:70px;">🤢💨</div>
+            <h2>Order Failed!</h2>
+            <p class="desc">${msg}</p>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+              <button class="btn blue" onclick="switchStation('screen-market')">Fix Basket 🛒</button>
+              <button class="btn gray" onclick="skipCustomer()">Skip Customer</button>
+            </div>
+          `;
+          document.getElementById('kitchen-cook-btn').style.display = 'none';
+        }
+      }, 1500);
+    }
+
+    function skipCustomer() {
+      tone(320, 0.15, 'triangle');
+      basket = [];
+      spawnNewCustomer();
+      switchStation('screen-diner');
+    }
+
+    // ===================== Cash Register (change-making) =====================
+    function computeBill(price) {
+      let bill = Math.ceil(price / 50) * 50;
+      if (bill === price) bill += 50;
+      return bill;
+    }
+
+    function openRegister(price) {
+      registerDing();
+      const bill = computeBill(price);
+      registerState = { price, bill, correctChange: bill - price, typed: '', attempts: 0 };
+
+      const billCount = Math.max(1, Math.min(4, Math.round(bill / 100)));
+      document.getElementById('register-bill').textContent = '💵'.repeat(billCount);
+      document.getElementById('register-info').innerHTML =
+        `Price: 🪙 <b>${price}</b> — Customer pays with a 🪙 <b>${bill}</b> bill!`;
+      document.getElementById('calc-display').textContent = '_';
+      document.getElementById('register-feedback').textContent = 'How much change do you give back?';
+      document.getElementById('register-feedback').style.color = 'var(--wood-dark)';
+
+      showScreen('screen-register');
+    }
+
+    function pressDigit(d) {
+      tone(500, 0.05);
+      if (registerState.typed.length >= 4) return;
+      registerState.typed += d;
+      document.getElementById('calc-display').textContent = registerState.typed;
+    }
+
+    function clearDisplay() {
+      tone(300, 0.06);
+      registerState.typed = '';
+      document.getElementById('calc-display').textContent = '_';
+    }
+
+    function submitChange() {
+      const val = Number(registerState.typed || -1);
+      const fb = document.getElementById('register-feedback');
+
+      if (val === registerState.correctChange) {
+        chaChing();
+        updateCoins(coins + registerState.price);
+        const prevTierIndex = getCurrentTierIndex();
+        totalServed++;
+        const newTierIndex = getCurrentTierIndex();
+        fb.style.color = 'var(--hard-c-amber)';
+        fb.textContent = `Correct! Here's your 🪙${val} change! 🎉`;
+        if (newTierIndex > prevTierIndex) {
+          setTimeout(() => showLevelUpToast(RECIPE_TIERS[newTierIndex].label), 300);
+        }
+        setTimeout(() => {
+          spawnNewCustomer();
+          switchStation('screen-diner');
+        }, 1400);
+      } else {
+        tone(220, 0.2, 'sawtooth');
+        registerState.attempts++;
+        const panel = document.getElementById('register-panel');
+        panel.classList.add('shake-loss');
+        setTimeout(() => panel.classList.remove('shake-loss'), 350);
+
+        fb.style.color = 'var(--danger-red)';
+        if (registerState.attempts >= 2) {
+          fb.textContent = `Hint: 🪙${registerState.bill} − 🪙${registerState.price} = 🪙${registerState.correctChange}`;
+        } else {
+          fb.textContent = 'Not quite, try again!';
+        }
+        registerState.typed = '';
+        document.getElementById('calc-display').textContent = '_';
+      }
+    }
+
+    // ===================== Day End / Leaderboard =====================
+    function endOfDay() {
+      clearInterval(clockInterval);
+      tone(500, 0.2);
+      showScreen('screen-closing');
+
+      const rivals = [
+        { name: "Chef Pierre (Le Bistro)", score: 480 },
+        { name: `${customRestaurantName} (YOU) 👨‍🍳`, score: coins, isUser: true },
+        { name: "Baker Bob (Sweet C)", score: 360 },
+        { name: "Salad Sally (Crisp Garden)", score: 240 }
+      ].sort((a, b) => b.score - a.score);
+
+      const board = document.getElementById('leaderboard-display');
+      board.innerHTML = `
+        <h3 style="margin: 0 0 12px 0;">🏆 Daily Restaurant Earnings</h3>
+        <p style="color:#725740; font-size:0.95rem; margin-bottom:14px;">Total Dishes Served: <b>${totalServed}</b></p>
+      `;
+
+      rivals.forEach((r, idx) => {
+        board.innerHTML += `
+          <div class="leader-row ${r.isUser ? 'highlight' : ''}">
+            <span>#${idx + 1} ${r.name}</span>
+            <span>🪙 ${r.score}</span>
+          </div>
+        `;
+      });
+    }
+
+    function restartEntireGame() {
+      tone(550, 0.15);
+      coins = 40;
+      basket = [];
+      totalServed = 0;
+      updateCoins(40);
+      showScreen('screen-intro');
+    }
+  </script>
+</body>
+</html>
