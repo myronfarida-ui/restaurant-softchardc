@@ -105,7 +105,7 @@
       font-size: 0.8rem; box-shadow: 0 2px 0 var(--wood-dark);
     }
 
-    .hud-metrics { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hud-metrics { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .coin-badge {
       background: var(--gold); color: var(--wood-dark);
       border: 3px solid var(--wood-dark); border-radius: 99px;
@@ -121,7 +121,15 @@
     .coin-badge.shake-loss { animation: shakeLoss 0.35s ease; background: #FFB4B4; }
     @keyframes shakeLoss { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
 
-    /* RENT MODAL POPUP */
+    .help-icon-btn {
+      background: white; color: var(--wood-dark); border: 3px solid var(--wood-dark);
+      border-radius: 50%; width: 36px; height: 36px; font-family: 'Fredoka One';
+      font-size: 1.15rem; cursor: pointer; box-shadow: 0 3px 0 var(--wood-dark);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .help-icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--wood-dark); }
+
+    /* RENT MODAL */
     .modal-overlay {
       position: absolute; inset: 0; background: rgba(0,0,0,0.65);
       display: none; align-items: center; justify-content: center; z-index: 100;
@@ -206,6 +214,28 @@
       font-family: 'Fredoka One'; font-size: 1.3rem; text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
     }
 
+    /* KIDS INSTRUCTIONS STYLING */
+    .kids-guide-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+      width: 100%; max-width: 680px; margin-bottom: 18px; text-align: left;
+    }
+    .guide-card {
+      background: white; border: 3px solid var(--wood-dark); border-radius: 20px;
+      padding: 12px 14px; box-shadow: 0 5px 0 var(--parchment); display: flex;
+      align-items: flex-start; gap: 12px;
+    }
+    .guide-num {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--theme-main);
+      color: white; font-family: 'Fredoka One'; font-size: 1rem; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .guide-info h3 {
+      margin: 0 0 2px 0; font-family: 'Fredoka One'; font-size: 1rem; color: var(--wood-dark);
+    }
+    .guide-info p {
+      margin: 0; font-size: 0.85rem; color: #725740; line-height: 1.35;
+    }
+
     /* DINER STAGE */
     .diner-stage {
       background: linear-gradient(180deg, var(--theme-sub) 0%, #FFFDF8 100%);
@@ -272,9 +302,13 @@
 
     /* QUEST STATIONS */
     .quest-timer-box {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 14px;
       background: white; border: 3px solid var(--wood-dark); border-radius: 18px;
-      padding: 6px 18px; margin-bottom: 12px; font-family: 'Fredoka One'; font-size: 1.1rem;
+      padding: 6px 18px; margin-bottom: 12px; font-family: 'Fredoka One'; font-size: 1.05rem;
+    }
+    .penalty-indicator {
+      background: #FFE3E3; color: var(--danger-red); border: 2px solid var(--danger-red);
+      border-radius: 99px; padding: 2px 10px; font-size: 0.8rem; font-family: 'Fredoka One';
     }
     .quest-card {
       background: white; border: 4px solid var(--wood-dark); border-radius: 22px;
@@ -339,11 +373,27 @@
       font-size: 0.78rem; font-weight: 700; padding: 4px 6px; cursor: pointer; width: 92%; margin-top: 4px;
     }
 
-    /* REGISTER & MATH */
+    /* REGISTER & 2-STEP MATH */
     .register-panel {
       background: white; border: 5px solid var(--wood-dark); border-radius: 26px;
       padding: 20px 24px; width: 100%; max-width: 440px; box-shadow: 0 10px 0 var(--wood-light);
     }
+    .step-pill {
+      display: inline-block; background: var(--theme-main); color: white;
+      font-family: 'Fredoka One'; font-size: 0.85rem; padding: 4px 12px;
+      border-radius: 99px; margin-bottom: 8px; border: 2px solid var(--wood-dark);
+    }
+    .multi-choice-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0 8px;
+    }
+    .choice-btn {
+      background: #FFF9E6; border: 3px solid var(--wood-dark); border-radius: 16px;
+      padding: 12px 4px; font-family: 'Fredoka One'; font-size: 1.25rem; color: var(--wood-dark);
+      cursor: pointer; box-shadow: 0 4px 0 var(--wood-light); transition: transform 0.1s;
+    }
+    .choice-btn:hover { background: #FFE899; }
+    .choice-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--wood-dark); }
+
     .calc-display {
       background: #23301F; color: #8BFF9B; font-family: 'Fredoka One'; font-size: 2rem;
       border-radius: 12px; padding: 8px; margin: 12px 0; min-height: 46px;
@@ -396,6 +446,7 @@
       .market-grid { grid-template-columns: repeat(4, 1fr); }
       .recipe-grid { grid-template-columns: repeat(2, 1fr); }
       .fish-grid { grid-template-columns: repeat(3, 1fr); }
+      .kids-guide-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 540px) {
       .market-grid { grid-template-columns: repeat(3, 1fr); }
@@ -446,13 +497,14 @@
       <div class="hud-metrics">
         <div class="coin-badge" id="coin-badge">Wallet: 🪙 <span id="coin-counter">0</span></div>
         <div class="bank-badge" id="bank-badge">Vault: 🏦 <span id="bank-counter">0</span></div>
+        <button class="help-icon-btn" onclick="openInstructions()" title="How to Play">?</button>
       </div>
     </header>
 
     <!-- 0. INTRO SCREEN -->
     <section id="screen-intro" class="screen active">
       <h1>👨‍🍳 Open Chef C's Diner</h1>
-      <p class="desc">Manage orders, solve multiplication, master C-words, pay daily rent, and climb to #1 in town!</p>
+      <p class="desc">Manage orders, multiply numbers, master English C-words, and become the #1 diner in town!</p>
 
       <div class="setup-card">
         <div class="input-group">
@@ -470,7 +522,63 @@
         </div>
       </div>
 
-      <button class="btn" style="font-size:1.25rem; padding:14px 40px;" onclick="confirmDinerSetup()">Start Day 1! 🔔</button>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+        <button class="btn gray" onclick="openInstructions()">📖 How to Play</button>
+        <button class="btn" style="font-size:1.25rem; padding:14px 36px;" onclick="confirmDinerSetup()">Start Day 1! 🔔</button>
+      </div>
+    </section>
+
+    <!-- 0b. HOW TO PLAY (KIDS-FRIENDLY VERSION) -->
+    <section id="screen-instructions" class="screen">
+      <h1>🌟 Super Chef Quick Guide!</h1>
+      <p class="desc">Running a restaurant is super fun! Follow these 6 easy steps:</p>
+
+      <div class="kids-guide-grid">
+        <div class="guide-card">
+          <div class="guide-num">1</div>
+          <div class="guide-info">
+            <h3>🏢 Pay Morning Rent</h3>
+            <p>Every morning, pay <b>🪙 50</b> rent to keep your cozy diner open for business!</p>
+          </div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-num">2</div>
+          <div class="guide-info">
+            <h3>🎯 30s Word Quests</h3>
+            <p>Earn coins by playing! Be careful: <b>mistakes deduct 5, 10, 15 up to 25 coins</b>!</p>
+          </div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-num">3</div>
+          <div class="guide-info">
+            <h3>🛒 Market &amp; ❄️ Fridge</h3>
+            <p>Buy food items before prices go up! Extra items can be safely kept in your <b>Walk-in Fridge</b>.</p>
+          </div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-num">4</div>
+          <div class="guide-info">
+            <h3>🍳 Multi-Plate Cooking</h3>
+            <p>Customers order 2 to 4 plates! Make sure you collect enough food for every single plate.</p>
+          </div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-num">5</div>
+          <div class="guide-info">
+            <h3>🧾 2-Step Math Register</h3>
+            <p>First, <b>Multiply (×5 or ×10)</b> to find total cost. Next, <b>Subtract</b> to give change!</p>
+          </div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-num">6</div>
+          <div class="guide-info">
+            <h3>🏦 Bank &amp; 🏆 Town Ranks</h3>
+            <p>At 4:00 PM, deposit savings into the vault and see if you beat the rival chefs in town!</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn green" style="font-size:1.15rem; padding:14px 40px;" onclick="closeInstructions()">I'm Ready to Cook! 🍳</button>
     </section>
 
     <!-- 1. STOREFRONT SCREEN -->
@@ -513,6 +621,7 @@
 
       <div class="quest-timer-box">
         <span id="quest-timer-status">⏱️ Time Left: <b id="quest-countdown">30s</b></span>
+        <span class="penalty-indicator" id="penalty-badge">Next Wrong: -🪙5</span>
       </div>
 
       <!-- Task A: Phonics Quiz Card -->
@@ -598,37 +707,58 @@
 
     <!-- 5. CASH REGISTER SCREEN -->
     <section id="screen-register" class="screen">
-      <h2>🧾 Cash Register &amp; Math Desk</h2>
+      <h2>🧾 Cash Register Desk</h2>
       <div class="register-panel" id="register-panel">
-        <div style="font-size:42px;" id="register-bill">💵</div>
         
-        <div style="background:var(--parchment); border:2px solid var(--wood-dark); border-radius:14px; padding:10px; margin:8px 0; text-align:left; font-size:0.95rem;">
-          <div>Order: <b id="reg-dish-qty">1</b>x <span id="reg-dish-name">Dish</span></div>
-          <div>Unit Price: 🪙<span id="reg-unit-price">0</span></div>
-          <div style="color:var(--theme-main); font-weight:700; font-size:1.05rem; margin-top:4px;">
-            Total: <span id="reg-qty-math">1 × 0</span> = 🪙<span id="reg-total-price">0</span>
+        <!-- STEP 1: MULTIPLICATION MULTIPLE CHOICE -->
+        <div id="reg-step-multi">
+          <span class="step-pill">Step 1: Calculate Order Total ✖️</span>
+          <div style="background:var(--parchment); border:2px solid var(--wood-dark); border-radius:14px; padding:12px; margin:8px 0; text-align:center;">
+            <div style="font-size:1.1rem; color:var(--wood-dark);">
+              Order: <b id="reg-multi-qty">2</b> × <span id="reg-multi-name">Dish</span>
+            </div>
+            <div style="font-size:0.95rem; color:#666; margin:4px 0;">
+              Price per dish: 🪙<b id="reg-multi-unit">25</b>
+            </div>
+            <div style="font-family:'Fredoka One'; font-size:1.6rem; color:var(--theme-main); margin-top:6px;">
+              <span id="reg-multi-equation">2 × 25 = ?</span>
+            </div>
           </div>
-          <div style="margin-top:4px; font-weight:700; color:#2B9348;">
-            Customer pays with: 🪙<span id="reg-given-cash">0</span>
-          </div>
+          <p style="font-weight:700; font-size:0.9rem; margin:8px 0 4px;">Select the correct total price:</p>
+          <div class="multi-choice-grid" id="reg-multi-choices"></div>
+          <p id="reg-multi-feedback" style="min-height:22px; font-weight:700; font-size:0.9rem; margin-top:6px;"></p>
         </div>
 
-        <div class="calc-display" id="calc-display">_</div>
-        <div class="calc-grid">
-          <button class="calc-key" onclick="pressDigit('1')">1</button>
-          <button class="calc-key" onclick="pressDigit('2')">2</button>
-          <button class="calc-key" onclick="pressDigit('3')">3</button>
-          <button class="calc-key" onclick="pressDigit('4')">4</button>
-          <button class="calc-key" onclick="pressDigit('5')">5</button>
-          <button class="calc-key" onclick="pressDigit('6')">6</button>
-          <button class="calc-key" onclick="pressDigit('7')">7</button>
-          <button class="calc-key" onclick="pressDigit('8')">8</button>
-          <button class="calc-key" onclick="pressDigit('9')">9</button>
-          <button class="calc-key clear" onclick="clearDisplay()">C</button>
-          <button class="calc-key" onclick="pressDigit('0')">0</button>
-          <button class="calc-key enter" onclick="submitChange()">✅</button>
+        <!-- STEP 2: CHANGE SUBTRACTION CALCULATOR -->
+        <div id="reg-step-change" style="display:none;">
+          <span class="step-pill" style="background:var(--hard-c-amber);">Step 2: Give Change ➖</span>
+          <div style="font-size:42px;" id="register-bill">💵</div>
+          
+          <div style="background:var(--parchment); border:2px solid var(--wood-dark); border-radius:14px; padding:10px; margin:8px 0; text-align:left; font-size:0.95rem;">
+            <div>Total Order Cost: 🪙<b id="reg-step2-total">0</b></div>
+            <div style="color:var(--hard-c-amber); font-weight:700; margin-top:4px;">
+              Customer pays with: 🪙<span id="reg-step2-paid">0</span>
+            </div>
+          </div>
+
+          <div class="calc-display" id="calc-display">_</div>
+          <div class="calc-grid">
+            <button class="calc-key" onclick="pressDigit('1')">1</button>
+            <button class="calc-key" onclick="pressDigit('2')">2</button>
+            <button class="calc-key" onclick="pressDigit('3')">3</button>
+            <button class="calc-key" onclick="pressDigit('4')">4</button>
+            <button class="calc-key" onclick="pressDigit('5')">5</button>
+            <button class="calc-key" onclick="pressDigit('6')">6</button>
+            <button class="calc-key" onclick="pressDigit('7')">7</button>
+            <button class="calc-key" onclick="pressDigit('8')">8</button>
+            <button class="calc-key" onclick="pressDigit('9')">9</button>
+            <button class="calc-key clear" onclick="clearDisplay()">C</button>
+            <button class="calc-key" onclick="pressDigit('0')">0</button>
+            <button class="calc-key enter" onclick="submitChange()">✅</button>
+          </div>
+          <p id="register-feedback" style="min-height:22px; font-weight:700; margin-top:8px; font-size:0.9rem;"></p>
         </div>
-        <p id="register-feedback" style="min-height:22px; font-weight:700; margin-top:8px; font-size:0.9rem;"></p>
+
       </div>
     </section>
 
@@ -737,11 +867,11 @@
     ];
 
     const RECIPES = [
-      { id: "salad", name: "Green Tossed Bowl", icon: "🥗", basePrice: 25, req: ["cucumber", "celery", "lettuce"] },
-      { id: "snack", name: "Sweet Treats Combo", icon: "🍪", basePrice: 28, req: ["cookie", "cupcake", "cereal"] },
-      { id: "curry", name: "Spicy Coconut Curry", icon: "🍛", basePrice: 35, req: ["carrot", "corn", "coconut", "rice"] },
+      { id: "salad", name: "Green Tossed Bowl", icon: "🥗", basePrice: 20, req: ["cucumber", "celery", "lettuce"] },
+      { id: "snack", name: "Sweet Treats Combo", icon: "🍪", basePrice: 25, req: ["cookie", "cupcake", "cereal"] },
       { id: "cooler", name: "Chilled Citrus Cider", icon: "🍹", basePrice: 30, req: ["citrus", "cider", "ice"] },
-      { id: "crunch", name: "Chef's Cabbage Crunch", icon: "🥘", basePrice: 32, req: ["cabbage", "corn", "carrot"] }
+      { id: "curry", name: "Spicy Coconut Curry", icon: "🍛", basePrice: 35, req: ["carrot", "corn", "coconut", "rice"] },
+      { id: "crunch", name: "Chef's Cabbage Crunch", icon: "🥘", basePrice: 40, req: ["cabbage", "corn", "carrot"] }
     ];
 
     const CUSTOMERS = ["🦊", "🐼", "🐻", "🐰", "🦁", "🐨", "🐶", "🐱"];
@@ -756,16 +886,14 @@
     // Game State
     let currentDay = 1;
     let customRestaurantName = "Chef C's Diner";
-    let coins = 70; // Starting capital
+    let coins = 70;
     let bankVault = 0;
     let basket = [];
     let fridge = [];
 
-    // Multi-dish order
     let currentCustomer = null;
     let currentOrder = null;
 
-    // Quest timing & cooldown
     let questActive = false;
     let questSecondsLeft = 30;
     let questTimerInterval = null;
@@ -774,14 +902,18 @@
     let questCooldownInterval = null;
     let currentQuestMode = 'quiz';
 
-    // Match task state
+    // Mistake penalty state (escalates by 5, capped at 25)
+    let consecutiveMistakes = 0;
+
     let matchSelectedEmoji = null;
     let matchPairsLeft = 0;
 
-    // Time & Hourly Price Escalation
     let gameMinutes = 9 * 60;
     const closingMinutes = 16 * 60;
     let clockInterval = null;
+
+    let screenBeforeInstructions = null;
+    let clockWasRunning = false;
 
     // Audio Engine
     let audioCtx = null;
@@ -845,6 +977,36 @@
       return 10 + (Math.max(0, hoursElapsed) * 10);
     }
 
+    // Dynamic penalty calculator: 5, 10, 15, 20, 25 (max)
+    function getCurrentPenaltyAmount() {
+      return Math.min(25, (consecutiveMistakes + 1) * 5);
+    }
+
+    function updatePenaltyDisplay() {
+      const badge = document.getElementById('penalty-badge');
+      if (!badge) return;
+      const penalty = getCurrentPenaltyAmount();
+      badge.textContent = `Next Wrong: -🪙${penalty}`;
+    }
+
+    function recordMistake(el) {
+      const penalty = getCurrentPenaltyAmount();
+      tone(220, 0.22, 'sawtooth');
+      updateCoins(coins - penalty, true);
+      spawnScoreFloat(`-${penalty}`, false, el);
+      consecutiveMistakes++;
+      updatePenaltyDisplay();
+    }
+
+    function recordSuccess(el, reward) {
+      tone(720, 0.15);
+      updateCoins(coins + reward);
+      spawnScoreFloat(`+${reward}`, true, el);
+      // Reset penalty streak upon correct answer
+      consecutiveMistakes = 0;
+      updatePenaltyDisplay();
+    }
+
     function selectTheme(mainColor, subColor, el) {
       document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
       el.classList.add('active');
@@ -867,7 +1029,7 @@
 
       const topBar = document.getElementById('top-bar');
       const nav = document.getElementById('station-nav');
-      const hideChrome = (id === 'screen-intro' || id === 'screen-closing' || id === 'screen-register');
+      const hideChrome = (id === 'screen-intro' || id === 'screen-instructions' || id === 'screen-closing' || id === 'screen-register');
       topBar.classList.toggle('hidden', hideChrome);
       nav.classList.toggle('hidden', hideChrome);
 
@@ -898,6 +1060,25 @@
       document.getElementById('bank-counter').textContent = bankVault;
     }
 
+    // ===================== How to Play Logic =====================
+    function openInstructions() {
+      tone(500, 0.1);
+      screenBeforeInstructions = document.querySelector('.screen.active')?.id || 'screen-intro';
+      clockWasRunning = clockInterval !== null;
+      if (clockInterval) clearInterval(clockInterval);
+      showScreen('screen-instructions');
+    }
+
+    function closeInstructions() {
+      tone(500, 0.1);
+      if (screenBeforeInstructions === 'screen-intro' || !screenBeforeInstructions) {
+        confirmDinerSetup();
+        return;
+      }
+      showScreen(screenBeforeInstructions);
+      if (clockWasRunning) startClockTicking();
+    }
+
     // ===================== Day & Rent Flow =====================
     function startDay() {
       gameMinutes = 9 * 60;
@@ -908,7 +1089,6 @@
       renderFridgeUI();
       showScreen('screen-diner');
 
-      // Trigger Rent Payment Modal at start of day
       showDailyRentModal();
     }
 
@@ -929,7 +1109,6 @@
     }
 
     function confirmRentPaid() {
-      // Execute 50 coins deduction
       if (coins >= 50) {
         updateCoins(coins - 50, true);
       } else {
@@ -986,7 +1165,9 @@
         currentCustomer = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)];
         const recipe = RECIPES[Math.floor(Math.random() * RECIPES.length)];
         const quantity = Math.floor(Math.random() * 3) + 2;
-        const unitPrice = recipe.basePrice + (Math.floor(Math.random() * 4) * 5);
+        
+        const priceVariation = Math.floor(Math.random() * 3) * 5;
+        const unitPrice = recipe.basePrice + priceVariation;
         const totalPrice = unitPrice * quantity;
 
         currentOrder = { recipe, quantity, unitPrice, totalPrice };
@@ -1096,6 +1277,8 @@
     function startQuestSession() {
       questActive = true;
       questSecondsLeft = 30;
+      consecutiveMistakes = 0; // Reset penalty on new round
+      updatePenaltyDisplay();
       document.getElementById('quest-countdown').textContent = `${questSecondsLeft}s`;
       checkQuestStateOnScreen();
 
@@ -1127,6 +1310,7 @@
       questActive = false;
       questCooldownActive = true;
       questCooldownLeft = 15;
+      consecutiveMistakes = 0;
       checkQuestStateOnScreen();
 
       document.getElementById('cooldown-timer').textContent = `Ready in: ${questCooldownLeft}s`;
@@ -1167,13 +1351,9 @@
     function submitQuizAnswer(ans, btnEl) {
       if (!questActive) return;
       if (ans === currentQuizItem.sound) {
-        tone(720, 0.15);
-        updateCoins(coins + currentQuizItem.reward);
-        spawnScoreFloat(`+${currentQuizItem.reward}`, true, btnEl);
+        recordSuccess(btnEl, currentQuizItem.reward);
       } else {
-        tone(220, 0.2, 'sawtooth');
-        updateCoins(coins - 5, true);
-        spawnScoreFloat("-5", false, btnEl);
+        recordMistake(btnEl);
       }
       setTimeout(pickRandomQuestMode, 400);
     }
@@ -1205,19 +1385,15 @@
     function catchFish(item, tileEl) {
       if (!questActive || tileEl.classList.contains('done')) return;
       if (item.sound === fishTargetSound) {
-        tone(780, 0.12);
         tileEl.classList.add('done');
-        updateCoins(coins + 20);
-        spawnScoreFloat('+20', true, tileEl);
+        recordSuccess(tileEl, 20);
         fishRemainingTarget--;
         if (fishRemainingTarget <= 0) {
           setTimeout(pickRandomQuestMode, 500);
         }
       } else {
-        tone(220, 0.2, 'sawtooth');
         tileEl.style.borderColor = 'var(--danger-red)';
-        updateCoins(coins - 5, true);
-        spawnScoreFloat('-5', false, tileEl);
+        recordMistake(tileEl);
       }
     }
 
@@ -1264,20 +1440,16 @@
     function selectMatchWord(wordItem, wordBtnEl) {
       if (!questActive || !matchSelectedEmoji) return;
       if (matchSelectedEmoji.item.word === wordItem.word) {
-        tone(820, 0.15);
         matchSelectedEmoji.btn.classList.add('matched');
         wordBtnEl.classList.add('matched');
-        updateCoins(coins + 25);
-        spawnScoreFloat('+25', true, wordBtnEl);
+        recordSuccess(wordBtnEl, 25);
         matchSelectedEmoji = null;
         matchPairsLeft--;
         if (matchPairsLeft <= 0) {
           setTimeout(pickRandomQuestMode, 500);
         }
       } else {
-        tone(220, 0.2, 'sawtooth');
-        updateCoins(coins - 5, true);
-        spawnScoreFloat('-5', false, wordBtnEl);
+        recordMistake(wordBtnEl);
       }
     }
 
@@ -1424,22 +1596,23 @@
       }, 1200);
     }
 
-    // ===================== Cash Register & Math =====================
+    // ===================== 2-STEP CASH REGISTER =====================
     let registerState = null;
 
     function openRegister() {
       tone(800, 0.1);
       const { quantity, unitPrice, totalPrice } = currentOrder;
 
-      const billOptions = [
-        Math.ceil(totalPrice / 50) * 50,
-        Math.ceil(totalPrice / 100) * 100,
-        totalPrice + 10,
-        totalPrice + 25,
-        totalPrice + 40
-      ];
-      let customerPaid = billOptions[Math.floor(Math.random() * billOptions.length)];
-      if (customerPaid <= totalPrice) customerPaid = totalPrice + 25;
+      let customerPaid;
+      if (totalPrice <= 45) {
+        customerPaid = 50;
+      } else if (totalPrice <= 90) {
+        customerPaid = 100;
+      } else if (totalPrice <= 140) {
+        customerPaid = 150;
+      } else {
+        customerPaid = 200;
+      }
 
       const correctChange = customerPaid - totalPrice;
 
@@ -1450,18 +1623,70 @@
         typed: ''
       };
 
-      document.getElementById('reg-dish-qty').textContent = quantity;
-      document.getElementById('reg-dish-name').textContent = currentOrder.recipe.name;
-      document.getElementById('reg-unit-price').textContent = unitPrice;
-      document.getElementById('reg-qty-math').textContent = `${quantity} × 🪙${unitPrice}`;
-      document.getElementById('reg-total-price').textContent = totalPrice;
-      document.getElementById('reg-given-cash').textContent = customerPaid;
+      document.getElementById('reg-step-multi').style.display = 'block';
+      document.getElementById('reg-step-change').style.display = 'none';
+      document.getElementById('reg-multi-feedback').textContent = '';
 
-      document.getElementById('calc-display').textContent = '_';
-      document.getElementById('register-feedback').textContent = 'Calculate change to return:';
-      document.getElementById('register-feedback').style.color = 'var(--wood-dark)';
+      document.getElementById('reg-multi-qty').textContent = quantity;
+      document.getElementById('reg-multi-name').textContent = currentOrder.recipe.name;
+      document.getElementById('reg-multi-unit').textContent = unitPrice;
+      document.getElementById('reg-multi-equation').textContent = `${quantity} × 🪙${unitPrice} = ?`;
+
+      const choices = [totalPrice];
+      
+      let wrong1 = totalPrice + (Math.random() > 0.5 ? 10 : -10);
+      if (wrong1 <= 0 || wrong1 === totalPrice) wrong1 = totalPrice + 20;
+      choices.push(wrong1);
+
+      let wrong2 = totalPrice + (Math.random() > 0.5 ? 5 : -5);
+      if (wrong2 <= 0 || choices.includes(wrong2)) wrong2 = totalPrice + 15;
+      choices.push(wrong2);
+
+      choices.sort(() => 0.5 - Math.random());
+
+      const choiceBox = document.getElementById('reg-multi-choices');
+      choiceBox.innerHTML = '';
+      choices.forEach(val => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = `🪙 ${val}`;
+        btn.onclick = () => checkMultiplicationAnswer(val, btn);
+        choiceBox.appendChild(btn);
+      });
 
       showScreen('screen-register');
+    }
+
+    function checkMultiplicationAnswer(selectedVal, btnEl) {
+      const fb = document.getElementById('reg-multi-feedback');
+      if (selectedVal === registerState.totalPrice) {
+        tone(780, 0.15);
+        btnEl.style.background = '#B9F6CA';
+        btnEl.style.borderColor = 'var(--hard-c-amber)';
+        fb.style.color = 'var(--hard-c-amber)';
+        fb.textContent = `🎉 Correct! Total is 🪙${selectedVal}! Now calculate change...`;
+
+        setTimeout(() => {
+          proceedToChangeStep();
+        }, 1000);
+      } else {
+        tone(220, 0.2, 'sawtooth');
+        btnEl.style.background = '#FFCDD2';
+        btnEl.style.borderColor = 'var(--danger-red)';
+        fb.style.color = 'var(--danger-red)';
+        fb.textContent = `Try again! Hint: ${currentOrder.quantity} × 🪙${currentOrder.unitPrice}`;
+      }
+    }
+
+    function proceedToChangeStep() {
+      document.getElementById('reg-step-multi').style.display = 'none';
+      document.getElementById('reg-step-change').style.display = 'block';
+
+      document.getElementById('reg-step2-total').textContent = registerState.totalPrice;
+      document.getElementById('reg-step2-paid').textContent = registerState.customerPaid;
+      document.getElementById('calc-display').textContent = '_';
+      document.getElementById('register-feedback').textContent = `Customer pays with 🪙${registerState.customerPaid}. How much change?`;
+      document.getElementById('register-feedback').style.color = 'var(--wood-dark)';
     }
 
     function pressDigit(d) {
@@ -1495,7 +1720,7 @@
       } else {
         tone(220, 0.2, 'sawtooth');
         fb.style.color = 'var(--danger-red)';
-        fb.textContent = `Incorrect! (Paid 🪙${registerState.customerPaid} - Total 🪙${registerState.totalPrice} = 🪙${registerState.correctChange})`;
+        fb.textContent = `Not quite! 🪙${registerState.customerPaid} − 🪙${registerState.totalPrice} = 🪙${registerState.correctChange}`;
         registerState.typed = '';
         document.getElementById('calc-display').textContent = '_';
       }
