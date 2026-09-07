@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#F9813A">
-  <title>Chef C's Restaurant Dash - Phonics Diner</title>
+  <title>Chef C's Diner - Phonics & Math Dash</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -23,6 +23,7 @@
       --gold: #FFC107;
       --danger-red: #E63946;
       --shadow: rgba(83, 59, 43, 0.15);
+      --fridge-blue: #D0E8FF;
     }
 
     * {
@@ -30,7 +31,6 @@
       -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     }
 
-    /* Text inputs need to stay selectable/editable on touch devices */
     input, textarea {
       user-select: text; -webkit-user-select: text; touch-action: auto;
     }
@@ -39,7 +39,7 @@
 
     body {
       margin: 0;
-      padding: 20px 14px calc(20px + env(safe-area-inset-bottom, 0px)) 14px;
+      padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px)) 12px;
       font-family: 'Quicksand', sans-serif;
       background-color: #FDF6EC;
       background-image: radial-gradient(var(--wood-light) 12%, transparent 13%), radial-gradient(var(--wood-light) 12%, transparent 13%);
@@ -51,32 +51,32 @@
     }
 
     #app-container {
-      width: 100%; max-width: 920px;
+      width: 100%; max-width: 940px;
       background: var(--cream);
       border: 5px solid var(--wood-dark);
-      border-radius: 36px;
-      box-shadow: 0 16px 0 var(--wood-dark), 0 24px 30px var(--shadow);
+      border-radius: 32px;
+      box-shadow: 0 14px 0 var(--wood-dark), 0 20px 26px var(--shadow);
       overflow: hidden; display: flex; flex-direction: column;
       position: relative;
     }
 
     /* TOP HUD */
     .top-bar {
-      background: var(--theme-main); padding: 10px 24px;
+      background: var(--theme-main); padding: 10px 20px;
       border-bottom: 5px solid var(--wood-dark);
       display: flex; justify-content: space-between; align-items: center; color: white;
-      transition: background 0.3s ease;
+      flex-wrap: wrap; gap: 8px;
     }
     .top-bar.hidden { display: none; }
 
     .clock-widget {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 10px;
       background: white; color: var(--wood-dark);
-      padding: 4px 14px 4px 8px; border-radius: 99px;
+      padding: 4px 12px; border-radius: 99px;
       border: 3px solid var(--wood-dark); box-shadow: 0 3px 0 var(--wood-dark);
     }
     .analog-face {
-      width: 42px; height: 42px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       border: 3px solid var(--wood-dark); background: #FFFDF0;
       position: relative; flex-shrink: 0;
     }
@@ -85,262 +85,300 @@
       transform-origin: bottom center; border-radius: 4px;
       background: var(--wood-dark);
     }
-    .hand.hour { width: 3px; height: 12px; margin-left: -1.5px; }
-    .hand.minute { width: 2px; height: 17px; margin-left: -1px; background: var(--danger-red); }
+    .hand.hour { width: 3px; height: 10px; margin-left: -1.5px; }
+    .hand.minute { width: 2px; height: 14px; margin-left: -1px; background: var(--danger-red); }
     .clock-center-dot {
-      position: absolute; top: 50%; left: 50%; width: 6px; height: 6px;
+      position: absolute; top: 50%; left: 50%; width: 5px; height: 5px;
       background: var(--wood-dark); border-radius: 50%; transform: translate(-50%, -50%);
     }
-    .clock-digital { font-family: 'Fredoka One'; font-size: 1rem; }
+    .clock-digital { font-family: 'Fredoka One'; font-size: 0.95rem; }
 
-    .hud-metrics { display: flex; align-items: center; gap: 12px; }
+    .day-badge {
+      background: #845EC2; color: white; border: 3px solid var(--wood-dark);
+      border-radius: 99px; padding: 4px 12px; font-family: 'Fredoka One';
+      font-size: 0.95rem; box-shadow: 0 3px 0 var(--wood-dark);
+    }
+
+    .rent-status-pill {
+      background: #E63946; color: white; border: 2px solid var(--wood-dark);
+      border-radius: 99px; padding: 4px 10px; font-family: 'Fredoka One';
+      font-size: 0.8rem; box-shadow: 0 2px 0 var(--wood-dark);
+    }
+
+    .hud-metrics { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .coin-badge {
       background: var(--gold); color: var(--wood-dark);
       border: 3px solid var(--wood-dark); border-radius: 99px;
-      padding: 6px 16px; font-weight: 700; font-size: 1.15rem;
-      box-shadow: 0 4px 0 var(--wood-dark);
+      padding: 5px 14px; font-weight: 700; font-size: 1.05rem;
+      box-shadow: 0 3px 0 var(--wood-dark);
+    }
+    .bank-badge {
+      background: #4D8076; color: white;
+      border: 3px solid var(--wood-dark); border-radius: 99px;
+      padding: 5px 14px; font-weight: 700; font-size: 0.95rem;
+      box-shadow: 0 3px 0 var(--wood-dark);
     }
     .coin-badge.shake-loss { animation: shakeLoss 0.35s ease; background: #FFB4B4; }
     @keyframes shakeLoss { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
 
-    /* STATION NAV (bottom tab bar) */
+    /* RENT MODAL POPUP */
+    .modal-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.65);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.active { display: flex; }
+    .rent-bill-card {
+      background: white; border: 5px solid var(--wood-dark); border-radius: 28px;
+      padding: 24px; width: 90%; max-width: 440px; box-shadow: 0 12px 0 var(--wood-dark);
+      text-align: center; animation: pop 0.25s ease-out forwards;
+    }
+
+    /* STATION NAV */
     .station-nav {
-      display: flex; gap: 10px; justify-content: center; padding: 10px 14px;
+      display: flex; gap: 8px; justify-content: center; padding: 10px 12px;
       background: var(--parchment); border-top: 4px solid var(--wood-dark); flex-wrap: wrap;
     }
     .station-nav.hidden { display: none; }
     .station-btn {
-      flex: 1; min-width: 80px; max-width: 150px; background: white;
-      border: 3px solid var(--wood-dark); border-radius: 16px; padding: 8px 6px;
-      font-family: 'Fredoka One'; font-size: 0.78rem; cursor: pointer;
+      flex: 1; min-width: 75px; max-width: 140px; background: white;
+      border: 3px solid var(--wood-dark); border-radius: 16px; padding: 8px 4px;
+      font-family: 'Fredoka One'; font-size: 0.76rem; cursor: pointer;
       box-shadow: 0 4px 0 var(--wood-light); display: flex; flex-direction: column;
-      align-items: center; gap: 2px; transition: transform 0.12s, background 0.2s, color 0.2s;
-      color: var(--wood-dark);
+      align-items: center; gap: 2px; color: var(--wood-dark);
     }
-    .station-btn .ic { font-size: 24px; }
+    .station-btn .ic { font-size: 22px; }
     .station-btn.active { background: var(--theme-main); color: white; box-shadow: 0 4px 0 var(--wood-dark); }
     .station-btn:active { transform: translateY(3px); }
 
     /* Screens */
     .screen {
-      padding: 26px 22px; text-align: center;
-      display: none; min-height: 540px; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px 18px; text-align: center;
+      display: none; min-height: 520px; flex-direction: column; align-items: center; justify-content: center;
       position: relative;
     }
-    .screen.active { display: flex; animation: pop 0.3s ease-out forwards; }
+    .screen.active { display: flex; animation: pop 0.25s ease-out forwards; }
     @keyframes pop { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
 
-    h1, h2 { font-family: 'Fredoka One', cursive; margin: 0 0 10px 0; }
-    h1 { font-size: 2.1rem; color: var(--wood-dark); }
-    h2 { font-size: 1.7rem; color: var(--wood-mid); }
-    p.desc { font-size: 1.05rem; color: #725740; margin: 0 0 20px 0; max-width: 620px; line-height: 1.5; }
+    h1, h2 { font-family: 'Fredoka One', cursive; margin: 0 0 8px 0; }
+    h1 { font-size: 2rem; color: var(--wood-dark); }
+    h2 { font-size: 1.6rem; color: var(--wood-mid); }
+    p.desc { font-size: 1rem; color: #725740; margin: 0 0 16px 0; max-width: 620px; line-height: 1.45; }
 
     /* Buttons */
     .btn {
-      font-family: 'Fredoka One', cursive; font-size: 1.1rem;
-      padding: 12px 28px; border-radius: 20px; border: 3px solid var(--wood-dark);
+      font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+      padding: 12px 24px; border-radius: 18px; border: 3px solid var(--wood-dark);
       background: var(--theme-main); color: white; cursor: pointer;
-      box-shadow: 0 6px 0 var(--wood-dark); transition: transform 0.1s ease, background 0.3s;
-      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 5px 0 var(--wood-dark); transition: transform 0.1s ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--wood-dark); }
+    .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--wood-dark); }
     .btn.blue { background: var(--soft-c-blue); }
     .btn.green { background: var(--hard-c-amber); }
-    .btn.gray { background: #A09489; font-size: 0.95rem; }
+    .btn.purple { background: #845EC2; }
+    .btn.gray { background: #9E9E9E; }
 
-    /* RESTAURANT SETUP / CUSTOMIZE FORM */
+    /* Setup Forms */
     .setup-card {
-      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
-      padding: 24px 32px; width: 100%; max-width: 480px;
-      box-shadow: 0 8px 0 var(--parchment); margin-bottom: 20px;
-      display: flex; flex-direction: column; gap: 16px; text-align: left;
+      background: white; border: 4px solid var(--wood-dark); border-radius: 22px;
+      padding: 20px 26px; width: 100%; max-width: 460px;
+      box-shadow: 0 8px 0 var(--parchment); margin-bottom: 18px;
+      display: flex; flex-direction: column; gap: 14px; text-align: left;
     }
     .input-group label {
-      font-family: 'Fredoka One'; font-size: 1.05rem; color: var(--wood-dark); display: block; margin-bottom: 6px;
+      font-family: 'Fredoka One'; font-size: 1rem; color: var(--wood-dark); display: block; margin-bottom: 5px;
     }
     .restaurant-input {
-      width: 100%; padding: 12px 16px; border-radius: 16px;
+      width: 100%; padding: 10px 14px; border-radius: 14px;
       border: 3px solid var(--wood-dark); font-family: 'Quicksand', sans-serif;
-      font-size: 1.1rem; font-weight: 700; color: var(--wood-dark); outline: none;
-      background: #FFFDF8;
+      font-size: 1.05rem; font-weight: 700; color: var(--wood-dark); outline: none; background: #FFFDF8;
     }
-    .restaurant-input:focus { border-color: var(--theme-main); }
-
-    .palette-picker {
-      display: flex; gap: 12px; justify-content: space-between; margin-top: 4px;
-    }
+    .palette-picker { display: flex; gap: 10px; justify-content: space-between; margin-top: 4px; }
     .color-swatch {
-      flex: 1; height: 48px; border-radius: 14px; border: 3px solid var(--wood-dark);
-      cursor: pointer; transition: transform 0.15s; position: relative;
+      flex: 1; height: 42px; border-radius: 12px; border: 3px solid var(--wood-dark);
+      cursor: pointer; position: relative;
     }
     .color-swatch.active::after {
       content: '✓'; position: absolute; inset: 0; display: flex;
       align-items: center; justify-content: center; color: white;
-      font-family: 'Fredoka One'; font-size: 1.4rem; text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+      font-family: 'Fredoka One'; font-size: 1.3rem; text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
     }
-    .color-swatch:hover { transform: scale(1.08); }
 
-    /* HOW TO PLAY / INSTRUCTIONS */
-    .instructions-list {
-      display: flex; flex-direction: column; gap: 12px; width: 100%;
-      max-width: 560px; margin-bottom: 20px; text-align: left;
-    }
-    .instruction-step {
-      background: white; border: 3px solid var(--wood-dark); border-radius: 18px;
-      padding: 12px 16px; display: flex; align-items: center; gap: 14px;
-      box-shadow: 0 5px 0 var(--parchment);
-    }
-    .instruction-step .step-number {
-      flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
-      background: var(--theme-main); color: white; font-family: 'Fredoka One';
-      display: flex; align-items: center; justify-content: center; font-size: 1rem;
-    }
-    .instruction-step .step-icon { flex-shrink: 0; font-size: 32px; }
-    .instruction-step .step-text strong {
-      font-family: 'Fredoka One'; font-size: 1rem; color: var(--wood-dark); display: block;
-    }
-    .instruction-step .step-text p {
-      margin: 2px 0 0; font-size: 0.85rem; color: #725740; line-height: 1.35;
-    }
-    .help-btn {
-      background: white; color: var(--wood-dark); border: 3px solid var(--wood-dark);
-      border-radius: 50%; width: 38px; height: 38px; font-family: 'Fredoka One';
-      font-size: 1.1rem; cursor: pointer; box-shadow: 0 3px 0 var(--wood-dark);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .help-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--wood-dark); }
-
-    /* DINER STAGE & CUSTOMER ARRIVAL */
+    /* DINER STAGE */
     .diner-stage {
       background: linear-gradient(180deg, var(--theme-sub) 0%, #FFFDF8 100%);
-      border: 4px solid var(--wood-dark); border-radius: 28px;
-      width: 100%; max-width: 760px; height: 300px;
-      position: relative; margin-bottom: 16px; overflow: hidden;
-      box-shadow: inset 0 -12px 0 rgba(0,0,0,0.05); transition: background 0.3s;
+      border: 4px solid var(--wood-dark); border-radius: 26px;
+      width: 100%; max-width: 760px; height: 270px;
+      position: relative; margin-bottom: 14px; overflow: hidden;
     }
     .restaurant-signboard {
-      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-      background: white; border: 3px solid var(--wood-dark); border-radius: 16px;
-      padding: 6px 24px; font-family: 'Fredoka One'; font-size: 1.15rem; color: var(--wood-dark);
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      background: white; border: 3px solid var(--wood-dark); border-radius: 14px;
+      padding: 5px 20px; font-family: 'Fredoka One'; font-size: 1.1rem; color: var(--wood-dark);
       box-shadow: 0 4px 0 var(--wood-light); z-index: 10;
     }
     .counter-bar {
-      position: absolute; bottom: 0; width: 100%; height: 75px;
+      position: absolute; bottom: 0; width: 100%; height: 70px;
       background: var(--wood-light); border-top: 5px solid var(--wood-dark);
     }
-
     .customer-actor {
-      position: absolute; bottom: 45px; left: -140px;
+      position: absolute; bottom: 40px; left: -140px;
       display: flex; flex-direction: column; align-items: center;
-      transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
-    .customer-actor.arrive { transform: translateX(450px); }
-    .customer-avatar { font-size: 80px; filter: drop-shadow(0 6px 0 rgba(0,0,0,0.1)); }
+    .customer-actor.arrive { transform: translateX(430px); }
+    .customer-avatar { font-size: 75px; filter: drop-shadow(0 6px 0 rgba(0,0,0,0.1)); }
 
     .customer-bubble {
-      background: white; border: 3px solid var(--wood-dark); border-radius: 22px;
-      padding: 8px 16px; margin-bottom: 6px; box-shadow: 0 6px 0 var(--wood-light);
+      background: white; border: 3px solid var(--wood-dark); border-radius: 20px;
+      padding: 8px 14px; margin-bottom: 6px; box-shadow: 0 5px 0 var(--wood-light);
       cursor: pointer; display: flex; align-items: center; gap: 8px;
       animation: bubbleFloat 1.8s ease-in-out infinite alternate;
-      transition: transform 0.15s;
     }
-    .customer-bubble:hover { transform: scale(1.08); border-color: var(--theme-main); }
-    @keyframes bubbleFloat { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+    @keyframes bubbleFloat { from { transform: translateY(0); } to { transform: translateY(-7px); } }
 
     .recipe-inspector {
-      background: var(--parchment); border: 4px dashed var(--wood-light); border-radius: 20px;
-      padding: 16px; width: 100%; max-width: 620px; margin-bottom: 16px;
+      background: var(--parchment); border: 3px dashed var(--wood-light); border-radius: 18px;
+      padding: 14px; width: 100%; max-width: 620px; margin-bottom: 14px;
     }
-    .recipe-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .recipe-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
     .recipe-item {
-      background: white; border: 2px solid var(--wood-dark); border-radius: 14px;
-      padding: 8px; font-weight: 700; font-size: 0.9rem;
+      background: white; border: 2px solid var(--wood-dark); border-radius: 12px;
+      padding: 6px; font-weight: 700; font-size: 0.85rem;
     }
 
-    /* Balanced Phonics Quest - Quiz mode */
-    .quiz-box {
-      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
-      padding: 22px; width: 100%; max-width: 480px; box-shadow: 0 8px 0 var(--parchment);
-      margin-bottom: 18px;
+    /* STORAGE & FRIDGE */
+    .fridge-container {
+      background: var(--fridge-blue); border: 4px solid #547A9E; border-radius: 22px;
+      padding: 14px; width: 100%; max-width: 760px; margin-bottom: 14px;
+      box-shadow: 0 6px 0 #3A5873;
     }
-    .quiz-emoji { font-size: 70px; margin-bottom: 4px; cursor: pointer; }
-    .quiz-word { font-family: 'Fredoka One'; font-size: 2rem; color: var(--wood-dark); }
-    .quiz-btns { display: flex; gap: 12px; margin-top: 14px; }
+    .fridge-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Fredoka One'; font-size: 1.1rem; color: #1E3D59; margin-bottom: 8px;
+    }
+    .inventory-tray {
+      display: flex; gap: 8px; flex-wrap: wrap; min-height: 48px;
+      background: rgba(255,255,255,0.7); border-radius: 14px; padding: 8px;
+      border: 2px dashed #547A9E; align-items: center;
+    }
+    .inv-chip {
+      background: white; border: 2px solid var(--wood-dark); border-radius: 12px;
+      padding: 4px 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 0 var(--wood-dark);
+    }
+
+    /* QUEST STATIONS */
+    .quest-timer-box {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      background: white; border: 3px solid var(--wood-dark); border-radius: 18px;
+      padding: 6px 18px; margin-bottom: 12px; font-family: 'Fredoka One'; font-size: 1.1rem;
+    }
+    .quest-card {
+      background: white; border: 4px solid var(--wood-dark); border-radius: 22px;
+      padding: 18px; width: 100%; max-width: 540px; box-shadow: 0 8px 0 var(--parchment);
+      margin-bottom: 14px;
+    }
+    .difficulty-tag {
+      display: inline-block; font-family: 'Fredoka One'; font-size: 0.8rem;
+      padding: 3px 10px; border-radius: 99px; margin-bottom: 8px;
+      border: 2px solid var(--wood-dark);
+    }
+    .difficulty-tag.easy { background: #B9F6CA; }
+    .difficulty-tag.medium { background: #FFE082; }
+    .difficulty-tag.hard { background: #FF8A80; color: white; }
+
+    .category-badge {
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 8px; margin-left: 6px;
+      background: #FFE8D6; color: var(--wood-dark); border: 1.5px solid var(--wood-dark);
+    }
+
+    .quiz-btns { display: flex; gap: 10px; margin-top: 14px; }
     .quiz-btns button {
-      flex: 1; padding: 16px; font-family: 'Fredoka One'; font-size: 1.15rem;
-      border: 3px solid var(--wood-dark); border-radius: 18px; color: white; cursor: pointer;
+      flex: 1; padding: 14px; font-family: 'Fredoka One'; font-size: 1.05rem;
+      border: 3px solid var(--wood-dark); border-radius: 16px; color: white; cursor: pointer;
     }
 
-    /* Balanced Phonics Quest - Catch mode */
-    .catch-box {
-      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
-      padding: 22px; width: 100%; max-width: 580px; box-shadow: 0 8px 0 var(--parchment);
-      margin-bottom: 18px;
+    .fish-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px;
     }
-    .catch-title {
-      font-family: 'Fredoka One'; font-size: 1.4rem; color: var(--theme-main); margin: 0 0 4px 0;
+    .fish-tile {
+      background: #E8F4FD; border: 3px solid var(--wood-dark); border-radius: 14px;
+      padding: 8px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+      transition: transform 0.15s ease;
     }
-    .catch-progress-text { font-size: 0.95rem; color: #8A7660; margin: 0 0 6px 0; }
-    .catch-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px;
-    }
-    .catch-item {
-      background: var(--parchment); border: 3px solid var(--wood-dark); border-radius: 16px;
-      padding: 10px 4px 8px; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-      transition: transform 0.15s ease, opacity 0.3s ease, background 0.2s ease;
-    }
-    .catch-item .catch-emoji { font-size: 34px; line-height: 1; }
-    .catch-item .catch-word { font-size: 0.7rem; font-weight: 700; color: var(--wood-dark); line-height: 1.15; text-align: center; }
-    .catch-item:hover { transform: scale(1.1); }
-    .catch-item:active { transform: scale(0.95); }
-    .catch-item.correct { background: #DFF0D8; border-color: var(--hard-c-amber); opacity: 0.4; pointer-events: none; transform: scale(0.9); }
-    .catch-item.wrong { background: #FADBD8; border-color: var(--danger-red); opacity: 0.4; pointer-events: none; transform: scale(0.9); }
+    .fish-tile.done { opacity: 0.35; pointer-events: none; background: #DFF0D8; }
 
-    /* Balanced Phonics Quest - Word Match mode (word <-> emoji vocabulary) */
-    .match-box {
-      background: white; border: 4px solid var(--wood-dark); border-radius: 24px;
-      padding: 22px; width: 100%; max-width: 480px; box-shadow: 0 8px 0 var(--parchment);
-      margin-bottom: 18px;
+    .match-row-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; text-align: left;
     }
-    .match-emoji { font-size: 70px; margin-bottom: 8px; cursor: pointer; }
-    .match-options {
-      display: flex; flex-direction: column; gap: 10px; margin-top: 14px;
+    .match-col { display: flex; flex-direction: column; gap: 8px; }
+    .match-btn {
+      background: white; border: 3px solid var(--wood-dark); border-radius: 14px;
+      padding: 10px; font-family: 'Fredoka One'; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .match-option-btn {
-      font-family: 'Fredoka One'; font-size: 1.1rem; padding: 14px;
-      border: 3px solid var(--wood-dark); border-radius: 16px;
-      background: var(--parchment); color: var(--wood-dark); cursor: pointer;
-      transition: transform 0.1s ease; width: 100%;
-    }
-    .match-option-btn:active { transform: scale(0.97); }
-    .match-option-btn.correct { background: #DFF0D8; border-color: var(--hard-c-amber); }
-    .match-option-btn.wrong { background: #FADBD8; border-color: var(--danger-red); }
+    .match-btn.selected { background: var(--theme-sub); border-color: var(--theme-main); }
+    .match-btn.matched { background: #DFF0D8; opacity: 0.5; pointer-events: none; }
 
-    /* Market Grid */
+    /* MARKET */
     .market-grid {
       display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
-      background: #E8F0F2; padding: 14px; border-radius: 24px; border: 4px solid #B0BEC5;
-      width: 100%; max-width: 800px; margin-bottom: 16px;
+      background: #E8F0F2; padding: 12px; border-radius: 22px; border: 4px solid #B0BEC5;
+      width: 100%; max-width: 800px; margin-bottom: 14px;
     }
     .item-crate {
-      background: white; border: 3px solid var(--wood-dark); border-radius: 16px;
+      background: white; border: 3px solid var(--wood-dark); border-radius: 14px;
       padding: 8px 4px; display: flex; flex-direction: column; align-items: center;
     }
-    .item-crate.bought { background: #DFF0D8; }
-    .item-crate.bought button.remove-btn {
-      background: #FADBD8; color: var(--danger-red);
-    }
-    .basket-chip {
-      display: inline-block; cursor: pointer; font-size: 1.3rem; padding: 2px 5px;
-      border-radius: 8px; transition: transform 0.15s, background 0.15s;
-    }
-    .basket-chip:hover { transform: scale(1.18); background: #FADBD8; }
     .item-crate button {
       background: var(--gold); border: 2px solid var(--wood-dark); border-radius: 8px;
-      font-size: 0.8rem; font-weight: 700; padding: 4px 8px; cursor: pointer; width: 90%;
+      font-size: 0.78rem; font-weight: 700; padding: 4px 6px; cursor: pointer; width: 92%; margin-top: 4px;
     }
+
+    /* REGISTER & MATH */
+    .register-panel {
+      background: white; border: 5px solid var(--wood-dark); border-radius: 26px;
+      padding: 20px 24px; width: 100%; max-width: 440px; box-shadow: 0 10px 0 var(--wood-light);
+    }
+    .calc-display {
+      background: #23301F; color: #8BFF9B; font-family: 'Fredoka One'; font-size: 2rem;
+      border-radius: 12px; padding: 8px; margin: 12px 0; min-height: 46px;
+      border: 3px solid var(--wood-dark); letter-spacing: 2px;
+    }
+    .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .calc-key {
+      background: var(--wood-light); border: 3px solid var(--wood-dark); border-radius: 12px;
+      font-family: 'Fredoka One'; font-size: 1.25rem; padding: 12px 0; cursor: pointer;
+      box-shadow: 0 4px 0 var(--wood-dark); color: var(--wood-dark);
+    }
+    .calc-key:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--wood-dark); }
+    .calc-key.clear { background: var(--danger-red); color: white; }
+    .calc-key.enter { background: var(--hard-c-amber); color: white; }
+
+    /* DAY END / BANK & LEADERBOARD */
+    .day-end-wrapper {
+      display: flex; gap: 14px; width: 100%; max-width: 820px; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .bank-card, .leaderboard-card {
+      background: white; border: 4px solid var(--wood-dark); border-radius: 22px;
+      padding: 16px 20px; flex: 1; min-width: 320px; box-shadow: 0 6px 0 var(--wood-light);
+    }
+    .leader-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem;
+      border: 2px solid transparent;
+    }
+    .leader-row.user-row {
+      background: #FFF3CD; border-color: var(--gold); box-shadow: 0 2px 0 var(--wood-light);
+    }
+
+    .bank-slider-group { margin: 12px 0; }
+    .bank-slider { width: 100%; height: 10px; accent-color: #4D8076; cursor: pointer; }
 
     .score-float {
       position: absolute; font-family: 'Fredoka One'; font-size: 1.8rem; pointer-events: none;
@@ -354,322 +392,227 @@
       100% { opacity: 0; transform: translateY(-50px) scale(1); }
     }
 
-    /* KITCHEN STATION */
-    #kitchen-result h2 { margin-top: 4px; }
-
-    /* CASH REGISTER */
-    .register-panel {
-      background: white; border: 5px solid var(--wood-dark); border-radius: 28px;
-      padding: 22px 26px; width: 100%; max-width: 400px; box-shadow: 0 10px 0 var(--wood-light);
-    }
-    .bill-display { font-size: 52px; letter-spacing: 2px; }
-    .calc-display {
-      background: #23301F; color: #8BFF9B; font-family: 'Fredoka One'; font-size: 2rem;
-      border-radius: 12px; padding: 10px; margin: 14px 0; min-height: 46px;
-      border: 3px solid var(--wood-dark); letter-spacing: 2px;
-    }
-    .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .calc-key {
-      background: var(--wood-light); border: 3px solid var(--wood-dark); border-radius: 12px;
-      font-family: 'Fredoka One'; font-size: 1.25rem; padding: 14px 0; cursor: pointer;
-      box-shadow: 0 4px 0 var(--wood-dark); color: var(--wood-dark);
-    }
-    .calc-key:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--wood-dark); }
-    .calc-key.clear { background: var(--danger-red); color: white; }
-    .calc-key.enter { background: var(--hard-c-amber); color: white; }
-
-    .leaderboard-board {
-      background: white; border: 5px solid var(--wood-dark); border-radius: 28px;
-      padding: 24px; width: 100%; max-width: 580px; box-shadow: 0 10px 0 var(--wood-light);
-      margin-bottom: 20px;
-    }
-    .leader-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 16px; border-radius: 12px; margin-bottom: 8px; font-weight: 700;
-    }
-    .leader-row.highlight { background: #FFF3D6; border: 2px solid var(--gold); }
-
-    /* Touch-friendly active states (many mobile browsers don't fire :hover) */
-    .color-swatch:active { transform: scale(0.94); }
-    .customer-bubble:active { transform: scale(0.96); }
-    .catch-item:active { transform: scale(0.92); }
-    .item-crate button:active { transform: translateY(2px); }
-    .station-btn:active .ic { transform: scale(0.9); }
-
-    /* ============ RESPONSIVE: TABLET (iPad portrait / small laptop) ============ */
-    @media (max-width: 820px) {
-      #app-container { border-radius: 28px; }
+    @media (max-width: 768px) {
       .market-grid { grid-template-columns: repeat(4, 1fr); }
-      .recipe-grid { grid-template-columns: repeat(3, 1fr); }
+      .recipe-grid { grid-template-columns: repeat(2, 1fr); }
+      .fish-grid { grid-template-columns: repeat(3, 1fr); }
     }
-
-    /* ============ RESPONSIVE: PHONE (portrait phones, small Android/iPhone) ============ */
-    @media (max-width: 600px) {
-      body { padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px)) 8px; }
-
-      #app-container {
-        border-width: 3px; border-radius: 20px;
-        box-shadow: 0 8px 0 var(--wood-dark), 0 14px 20px var(--shadow);
-      }
-
+    @media (max-width: 540px) {
+      .market-grid { grid-template-columns: repeat(3, 1fr); }
       .top-bar { padding: 8px 12px; }
-      .clock-digital { font-size: 0.85rem; }
-      .analog-face { width: 34px; height: 34px; }
-      .coin-badge { font-size: 1rem; padding: 5px 12px; }
-
-      .station-nav { padding: 8px; gap: 6px; }
-      .station-btn { font-size: 0.68rem; padding: 6px 4px; }
-      .station-btn .ic { font-size: 20px; }
-
-      .screen { padding: 16px 12px; min-height: 460px; }
-      h1 { font-size: 1.5rem; }
-      h2 { font-size: 1.25rem; }
-      p.desc { font-size: 0.9rem; margin-bottom: 14px; }
-
-      .setup-card { padding: 16px 18px; max-width: 100%; }
-      .restaurant-input { font-size: 1rem; padding: 10px 12px; }
-      .color-swatch { height: 40px; }
-
-      .diner-stage { height: 220px; }
-      .customer-avatar { font-size: 56px; }
-      .restaurant-signboard { font-size: 0.85rem; padding: 5px 14px; }
-      .customer-actor.arrive { transform: translateX(min(65vw, 320px)); }
-      .customer-bubble { padding: 6px 12px; }
-
-      .recipe-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .recipe-item { font-size: 0.8rem; padding: 6px; }
-
-      .quiz-box, .catch-box, .match-box { padding: 14px; max-width: 100%; }
-      .quiz-emoji { font-size: 52px; }
-      .quiz-word { font-size: 1.5rem; }
-      .quiz-btns button { padding: 12px; font-size: 0.95rem; }
-      .catch-title { font-size: 1.1rem; }
-      .catch-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .catch-item { padding: 8px 2px; }
-      .catch-item .catch-emoji { font-size: 26px; }
-      .catch-item .catch-word { font-size: 0.6rem; }
-
-      .market-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-      .item-crate button { font-size: 0.72rem; }
-
-      .register-panel { padding: 16px 18px; max-width: 100%; }
-      .bill-display { font-size: 40px; }
-      .calc-display { font-size: 1.5rem; }
-      .calc-key { font-size: 1.05rem; padding: 12px 0; }
-
-      .leaderboard-board { padding: 16px; max-width: 100%; }
-      .leader-row { padding: 8px 12px; font-size: 0.9rem; }
-    }
-
-    /* ============ RESPONSIVE: VERY SMALL PHONES ============ */
-    @media (max-width: 380px) {
-      .market-grid { grid-template-columns: repeat(2, 1fr); }
-      .catch-grid { grid-template-columns: repeat(3, 1fr); }
-      .quiz-emoji { font-size: 44px; }
-      h1 { font-size: 1.3rem; }
-    }
-
-    /* ============ RESPONSIVE: LANDSCAPE PHONES (short viewport height) ============ */
-    @media (max-height: 480px) and (orientation: landscape) {
-      .screen { min-height: 0; padding: 10px 14px; }
-      .diner-stage { height: 160px; }
-      h1 { font-size: 1.2rem; margin-bottom: 4px; }
-      p.desc { margin-bottom: 8px; }
+      .screen { padding: 14px 10px; }
     }
   </style>
 </head>
 <body>
 
   <div id="app-container">
-    <!-- TOP BAR -->
-    <header class="top-bar hidden" id="top-bar">
-      <div class="clock-widget">
-        <div class="analog-face">
-          <div class="hand hour" id="clock-hour"></div>
-          <div class="hand minute" id="clock-minute"></div>
-          <div class="clock-center-dot"></div>
+    <!-- POPUP MODAL: DAILY RENT RECEIPT -->
+    <div class="modal-overlay" id="rent-modal">
+      <div class="rent-bill-card">
+        <div style="font-size: 55px; margin-bottom: 4px;">🏢🧾</div>
+        <h2 style="color: var(--danger-red); margin-bottom: 4px;">Daily Rent Due!</h2>
+        <p style="font-weight: 700; color: #555; margin: 0 0 14px 0;" id="rent-modal-day-text">Day 1 Storefront Lease</p>
+        
+        <div style="background: var(--parchment); border: 2px dashed var(--wood-dark); border-radius: 16px; padding: 14px; margin-bottom: 16px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span>Diner Rent Fee:</span>
+            <b style="color: var(--danger-red);">-🪙 50</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #666;" id="rent-modal-deduct-info">
+            <span>Deducted from:</span>
+            <b>Wallet Cash</b>
+          </div>
         </div>
-        <div class="clock-digital" id="clock-digital">09:00 AM</div>
+
+        <button class="btn green" style="width: 100%;" onclick="confirmRentPaid()">Pay &amp; Open Doors! 🚪</button>
+      </div>
+    </div>
+
+    <!-- TOP HUD -->
+    <header class="top-bar hidden" id="top-bar">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="day-badge" id="hud-day">Day 1</div>
+        <div class="clock-widget">
+          <div class="analog-face">
+            <div class="hand hour" id="clock-hour"></div>
+            <div class="hand minute" id="clock-minute"></div>
+            <div class="clock-center-dot"></div>
+          </div>
+          <div class="clock-digital" id="clock-digital">09:00 AM</div>
+        </div>
+        <div class="rent-status-pill">Rent: Paid 🪙50 ✓</div>
       </div>
       <div class="hud-metrics">
-        <div class="coin-badge" id="coin-badge">💰 <span id="coin-counter">0</span></div>
-        <button class="help-btn" onclick="openInstructions()" title="How to Play">?</button>
+        <div class="coin-badge" id="coin-badge">Wallet: 🪙 <span id="coin-counter">0</span></div>
+        <div class="bank-badge" id="bank-badge">Vault: 🏦 <span id="bank-counter">0</span></div>
       </div>
     </header>
 
-    <!-- 0. INTRO & RESTAURANT CUSTOMIZATION -->
+    <!-- 0. INTRO SCREEN -->
     <section id="screen-intro" class="screen active">
-      <h1>🎨 Design Your Restaurant!</h1>
-      <p class="desc">Give your restaurant a cool name and pick your favorite theme color!</p>
+      <h1>👨‍🍳 Open Chef C's Diner</h1>
+      <p class="desc">Manage orders, solve multiplication, master C-words, pay daily rent, and climb to #1 in town!</p>
 
       <div class="setup-card">
         <div class="input-group">
           <label for="restaurant-name-input">Restaurant Name:</label>
-          <input type="text" id="restaurant-name-input" class="restaurant-input" maxlength="24" value="Chef C's Bistro">
+          <input type="text" id="restaurant-name-input" class="restaurant-input" maxlength="24" value="Chef C's Diner">
         </div>
-
         <div class="input-group">
-          <label>Choose Theme Color:</label>
+          <label>Theme Color:</label>
           <div class="palette-picker">
-            <div class="color-swatch active" style="background:#F9813A;" onclick="selectTheme('#F9813A', '#FFE8D6', this)" title="Warm Apricot"></div>
-            <div class="color-swatch" style="background:#FF6F91;" onclick="selectTheme('#FF6F91', '#FFE3EC', this)" title="Sweet Berry"></div>
-            <div class="color-swatch" style="background:#2B9348;" onclick="selectTheme('#2B9348', '#E2F7E1', this)" title="Fresh Mint"></div>
-            <div class="color-swatch" style="background:#4895EF;" onclick="selectTheme('#4895EF', '#E3F0FF', this)" title="Ocean Breeze"></div>
+            <div class="color-swatch active" style="background:#F9813A;" onclick="selectTheme('#F9813A', '#FFE8D6', this)"></div>
+            <div class="color-swatch" style="background:#FF6F91;" onclick="selectTheme('#FF6F91', '#FFE3EC', this)"></div>
+            <div class="color-swatch" style="background:#2B9348;" onclick="selectTheme('#2B9348', '#E2F7E1', this)"></div>
+            <div class="color-swatch" style="background:#4895EF;" onclick="selectTheme('#4895EF', '#E3F0FF', this)"></div>
           </div>
         </div>
       </div>
 
-      <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-        <button class="btn gray" style="font-size:1rem; padding:12px 24px;" onclick="openInstructions()">📖 How to Play</button>
-        <button class="btn" style="font-size:1.3rem; padding:14px 40px;" onclick="confirmDinerSetup()">Start My Diner Shift! 🔔</button>
-      </div>
+      <button class="btn" style="font-size:1.25rem; padding:14px 40px;" onclick="confirmDinerSetup()">Start Day 1! 🔔</button>
     </section>
 
-    <!-- 0b. INSTRUCTIONS / HOW TO PLAY -->
-    <section id="screen-instructions" class="screen">
-      <h1>📖 How to Play</h1>
-      <p class="desc">Follow these steps every time a customer visits your restaurant!</p>
-
-      <div class="instructions-list">
-        <div class="instruction-step">
-          <div class="step-number">1</div>
-          <div class="step-icon">🎯</div>
-          <div class="step-text">
-            <strong>Do a Phonics Quest</strong>
-            <p>Answer questions or catch the right ingredients to earn coins!</p>
-          </div>
-        </div>
-        <div class="instruction-step">
-          <div class="step-number">2</div>
-          <div class="step-icon">🛒</div>
-          <div class="step-text">
-            <strong>Shop at the Market</strong>
-            <p>Check the customer's recipe, then buy exactly those ingredients.</p>
-          </div>
-        </div>
-        <div class="instruction-step">
-          <div class="step-number">3</div>
-          <div class="step-icon">🍳</div>
-          <div class="step-text">
-            <strong>Cook in the Kitchen</strong>
-            <p>Cook the dish once your basket matches the recipe perfectly.</p>
-          </div>
-        </div>
-        <div class="instruction-step">
-          <div class="step-number">4</div>
-          <div class="step-icon">🧾</div>
-          <div class="step-text">
-            <strong>Give the Right Change</strong>
-            <p>Work out the change to pay back your happy customer.</p>
-          </div>
-        </div>
-        <div class="instruction-step">
-          <div class="step-number">5</div>
-          <div class="step-icon">🔁</div>
-          <div class="step-text">
-            <strong>Repeat & Level Up!</strong>
-            <p>Serve more customers to unlock fancier menus before closing time!</p>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn green" style="font-size:1.2rem; padding:14px 36px;" onclick="closeInstructions()">Got It, Let's Cook! 🍳</button>
-    </section>
-
-    <!-- 1. STOREFRONT STATION -->
+    <!-- 1. STOREFRONT SCREEN -->
     <section id="screen-diner" class="screen">
       <div class="diner-stage">
-        <div class="restaurant-signboard" id="stage-signboard">Chef C's Bistro</div>
+        <div class="restaurant-signboard" id="stage-signboard">Chef C's Diner</div>
         <div class="customer-actor" id="customer-actor">
           <div class="customer-bubble" onclick="inspectOrder()">
-            <span style="font-size: 32px;" id="order-dish-icon">🍛</span>
-            <span style="font-weight:700;" id="order-dish-text">Tap to view recipe!</span>
+            <span style="font-size: 30px;" id="order-dish-icon">🍛</span>
+            <span style="font-weight:700;" id="order-dish-text">Order</span>
           </div>
           <div class="customer-avatar" id="customer-avatar">🦊</div>
         </div>
         <div class="counter-bar"></div>
       </div>
 
-      <div class="recipe-inspector" id="recipe-sheet" style="display: none;">
-        <h3 id="recipe-name" style="margin: 0 0 6px 0; color: var(--theme-main);">Recipe</h3>
-        <p style="margin: 0; font-size: 0.9rem; color: #634735;">Required Phonics Ingredients:</p>
-        <div class="recipe-grid" id="recipe-req-box"></div>
-      </div>
-
-      <p class="desc" style="margin: 6px 0 0; font-size: 0.95rem;">👇 Use the stations below: earn coins, shop, then cook!</p>
-    </section>
-
-    <!-- 2. PHONICS QUEST STATION (BALANCED 50/50 K vs S, quiz + catch + word-match modes) -->
-    <section id="screen-quest" class="screen">
-      <h2>Pantry Phonics Quest</h2>
-      <p class="desc" id="quest-instructions">Answer correctly (+10 Coins). Wrong answers deduct (-5 Coins)!</p>
-
-      <div class="quiz-box" id="quiz-box">
-        <div class="quiz-emoji" id="q-emoji" onclick="speakActiveWord()">🥕</div>
-        <div class="quiz-word" id="q-word">Carrot</div>
-        <div style="font-size: 0.85rem; color: #8A7660;">Tap emoji to hear word 🔊</div>
-
-        <div class="quiz-btns">
-          <button style="background: var(--hard-c-amber);" onclick="submitQuizAnswer('hard', this)">Hard C (/k/)</button>
-          <button style="background: var(--soft-c-blue);" onclick="submitQuizAnswer('soft', this)">Soft C (/s/)</button>
+      <!-- WALK-IN FRIDGE -->
+      <div class="fridge-container">
+        <div class="fridge-header">
+          <span>❄️ Walk-in Fridge (Storage)</span>
+          <span style="font-size:0.85rem; font-weight:normal;">Tap items to move to Basket</span>
+        </div>
+        <div class="inventory-tray" id="fridge-inventory">
+          <span style="color:#4B6584; font-size:0.85rem;">Fridge is empty. Buy surplus items at the Market!</span>
         </div>
       </div>
 
-      <div class="catch-box" id="catch-box" style="display:none;">
-        <div class="catch-title" id="catch-target-title">🎣 Catch 5 Soft C items!</div>
-        <p class="catch-progress-text">Caught: <span id="catch-progress">0</span> / <span id="catch-goal">5</span></p>
-        <div class="catch-grid" id="catch-grid"></div>
-      </div>
-
-      <div class="match-box" id="match-box" style="display:none;">
-        <div class="match-emoji" id="match-emoji" onclick="speakActiveMatch()">🥕</div>
-        <div style="font-size: 0.85rem; color: #8A7660;">Which word matches this picture? Tap it to hear it 🔊</div>
-        <div class="match-options" id="match-options"></div>
+      <div class="recipe-inspector" id="recipe-sheet" style="display: none;">
+        <h3 id="recipe-name" style="margin: 0 0 6px 0; color: var(--theme-main);">Recipe</h3>
+        <p id="recipe-multi-info" style="font-weight:700; color:#533B2B; margin:0 0 4px 0;"></p>
+        <p style="margin: 0; font-size: 0.9rem; color: #634735;">Required Phonics Ingredients (per dish):</p>
+        <div class="recipe-grid" id="recipe-req-box"></div>
       </div>
     </section>
 
-    <!-- 3. MARKET STATION -->
-    <section id="screen-market" class="screen">
-      <h2>Grand Supermarket</h2>
-      <p class="desc">Buy exactly what the customer requested (<span id="market-price-hint">5</span> Coins each).</p>
+    <!-- 2. PHONICS QUEST SCREEN -->
+    <section id="screen-quest" class="screen">
+      <h2>🎯 30s Challenge Quests</h2>
+      <p class="desc" id="quest-desc">Tasks rotate between Phonics Quiz, Fishing Pond, and Picture Match!</p>
 
-      <div style="background:white; border:3px solid var(--wood-dark); border-radius:16px; padding:10px 18px; margin-bottom:12px;">
-        <span style="font-weight:700; color:var(--theme-main);">Basket: </span>
-        <span id="market-basket-icons">🛒 (Empty)</span>
-        <div style="font-size:0.78rem; color:#8A7660; margin-top:4px;">Tap an ingredient (in the basket or on the shelf) to remove it</div>
+      <div class="quest-timer-box">
+        <span id="quest-timer-status">⏱️ Time Left: <b id="quest-countdown">30s</b></span>
+      </div>
+
+      <!-- Task A: Phonics Quiz Card -->
+      <div class="quest-card" id="quest-card-quiz" style="display:none;">
+        <span class="difficulty-tag" id="q-diff">Easy (+15 Coins)</span>
+        <span class="category-badge" id="q-cat">Food</span>
+        <div style="font-size: 50px; margin-bottom: 6px;" id="q-emoji" onclick="speakActiveWord()">🥕</div>
+        <div style="font-family:'Fredoka One'; font-size:2rem; margin-bottom:4px;" id="q-word">Carrot</div>
+        <div style="font-size: 0.85rem; color: #8A7660; margin-bottom:10px;">Tap emoji to listen 🔊</div>
+        <p id="q-desc-hint" style="font-size:0.95rem; font-weight:600; color:#4E342E; margin:0 0 10px;"></p>
+
+        <div class="quiz-btns">
+          <button style="background: var(--hard-c-amber);" onclick="submitQuizAnswer('hard', this)">Hard C (/k/)<br><span style="font-size:0.75rem;">(carrot, corn, clean)</span></button>
+          <button style="background: var(--soft-c-blue);" onclick="submitQuizAnswer('soft', this)">Soft C (/s/)<br><span style="font-size:0.75rem;">(cereal, cider, cinema)</span></button>
+        </div>
+      </div>
+
+      <!-- Task B: Fishing / Catch Mode -->
+      <div class="quest-card" id="quest-card-fish" style="display:none;">
+        <h3 id="fish-prompt" style="margin:0 0 6px 0; color:var(--theme-main);">🎣 Catch all Soft C items!</h3>
+        <p style="font-size:0.85rem; color:#666; margin:0;">Tap the correct words swimming in the pond (+20 Coins each)</p>
+        <div class="fish-grid" id="fish-grid"></div>
+      </div>
+
+      <!-- Task C: Vocabulary Match Mode -->
+      <div class="quest-card" id="quest-card-match" style="display:none;">
+        <h3 style="margin:0 0 4px 0; color:#845EC2;">🧩 Word-Picture Match</h3>
+        <p style="font-size:0.85rem; color:#666; margin:0;">Select an Emoji, then tap its matching English Word!</p>
+        <div class="match-row-grid">
+          <div class="match-col" id="match-emojis"></div>
+          <div class="match-col" id="match-words"></div>
+        </div>
+      </div>
+
+      <div id="quest-cooldown-box" style="display:none; text-align:center;">
+        <div style="font-size:50px;">☕ Chef's Break</div>
+        <p class="desc">Quest cooldown active. Take a breather before the next rush!</p>
+        <p style="font-family:'Fredoka One'; font-size:1.5rem; color:var(--theme-main);" id="cooldown-timer">Ready in: 15s</p>
+      </div>
+
+      <button class="btn blue" id="btn-start-quest" style="display:none;" onclick="startQuestSession()">Begin 30s Quest Session! 🚀</button>
+    </section>
+
+    <!-- 3. MARKET SCREEN -->
+    <section id="screen-market" class="screen">
+      <h2>🛒 Fresh Produce Market</h2>
+      <p class="desc">Prices rise by +🪙10 every in-game hour! Current price: <b style="color:var(--danger-red);">🪙<span id="market-curr-price">10</span></b> per item.</p>
+
+      <div style="background:white; border:3px solid var(--wood-dark); border-radius:16px; padding:10px 14px; margin-bottom:12px; width:100%; max-width:760px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+          <div>
+            <span style="font-weight:700; color:var(--theme-main);">Cooking Basket: </span>
+            <span id="market-basket-icons">🛒 (Empty)</span>
+          </div>
+          <button class="btn gray" style="padding:4px 10px; font-size:0.8rem;" onclick="storeBasketToFridge()">Store in Fridge ❄️</button>
+        </div>
       </div>
 
       <div class="market-grid" id="market-shelf"></div>
 
-      <button class="btn green" onclick="cookAndServe()">Done Shopping — Cook Now! 🍳</button>
+      <button class="btn green" onclick="cookAndServe()">Check Order &amp; Cook! 🍳</button>
     </section>
 
-    <!-- 4. KITCHEN STATION -->
+    <!-- 4. KITCHEN SCREEN -->
     <section id="screen-kitchen" class="screen">
-      <h2>🍳 Kitchen</h2>
+      <h2>🍳 Diner Kitchen</h2>
 
       <div class="recipe-inspector" id="kitchen-order-card">
-        <h3 id="kitchen-order-title" style="margin:0 0 6px 0; color:var(--theme-main);">No active order</h3>
-        <p style="margin:0; font-size:0.9rem; color:#634735;">Ingredients Checklist:</p>
+        <h3 id="kitchen-order-title" style="margin:0 0 6px 0; color:var(--theme-main);">Active Order</h3>
+        <p id="kitchen-multi-info" style="font-weight:700; color:#533B2B;"></p>
+        <p style="margin:0; font-size:0.9rem; color:#634735;">Total Ingredients Required:</p>
         <div class="recipe-grid" id="kitchen-checklist"></div>
       </div>
 
       <div id="kitchen-cooking-anim" style="display:none;">
         <div style="font-size:70px; animation:bounce 0.8s infinite alternate;">🍲🔥</div>
-        <p class="desc">Cooking...</p>
+        <p class="desc">Cooking multiple dishes...</p>
       </div>
 
       <div id="kitchen-result" style="display:none;"></div>
-
-      <button class="btn green" id="kitchen-cook-btn" onclick="cookAndServe()">Cook &amp; Serve! 🍲</button>
+      <button class="btn green" id="kitchen-cook-btn" onclick="cookAndServe()">Start Cooking! 🍲</button>
     </section>
 
-    <!-- 5. CASH REGISTER (change-making mini game) -->
+    <!-- 5. CASH REGISTER SCREEN -->
     <section id="screen-register" class="screen">
-      <h2>🧾 Give the Right Change!</h2>
+      <h2>🧾 Cash Register &amp; Math Desk</h2>
       <div class="register-panel" id="register-panel">
-        <div class="bill-display" id="register-bill">💵</div>
-        <p class="desc" id="register-info" style="margin:6px 0 14px;">Price: 🪙 0 — Customer pays with 🪙 0</p>
+        <div style="font-size:42px;" id="register-bill">💵</div>
+        
+        <div style="background:var(--parchment); border:2px solid var(--wood-dark); border-radius:14px; padding:10px; margin:8px 0; text-align:left; font-size:0.95rem;">
+          <div>Order: <b id="reg-dish-qty">1</b>x <span id="reg-dish-name">Dish</span></div>
+          <div>Unit Price: 🪙<span id="reg-unit-price">0</span></div>
+          <div style="color:var(--theme-main); font-weight:700; font-size:1.05rem; margin-top:4px;">
+            Total: <span id="reg-qty-math">1 × 0</span> = 🪙<span id="reg-total-price">0</span>
+          </div>
+          <div style="margin-top:4px; font-weight:700; color:#2B9348;">
+            Customer pays with: 🪙<span id="reg-given-cash">0</span>
+          </div>
+        </div>
+
         <div class="calc-display" id="calc-display">_</div>
         <div class="calc-grid">
           <button class="calc-key" onclick="pressDigit('1')">1</button>
@@ -685,22 +628,49 @@
           <button class="calc-key" onclick="pressDigit('0')">0</button>
           <button class="calc-key enter" onclick="submitChange()">✅</button>
         </div>
-        <p id="register-feedback" style="min-height:24px; font-weight:700; margin-top:12px;"></p>
+        <p id="register-feedback" style="min-height:22px; font-weight:700; margin-top:8px; font-size:0.9rem;"></p>
       </div>
     </section>
 
-    <!-- 6. DAY SUMMARY / LEADERBOARD -->
+    <!-- 6. DAY-END / BANK & TOWN LEADERBOARD SCREEN -->
     <section id="screen-closing" class="screen">
-      <div style="font-size: 70px; margin-bottom: 8px;">🌙🚪</div>
-      <h1>04:00 PM - Restaurant Closed!</h1>
-      <p class="desc">Shift ended! Here is how your daily restaurant revenue compares to the town's top chefs:</p>
+      <div style="font-size: 50px; margin-bottom: 4px;">🌙🏆</div>
+      <h1 id="closing-title">04:00 PM - Shift Ended!</h1>
+      <p class="desc">Review your town diner rank, deposit cash into the bank, and prepare for tomorrow.</p>
 
-      <div class="leaderboard-board" id="leaderboard-display"></div>
+      <div class="day-end-wrapper">
+        <!-- Town Leaderboard -->
+        <div class="leaderboard-card">
+          <h3 style="margin:0 0 6px 0; color:var(--theme-main);">🏆 Town Diner Rankings</h3>
+          <p style="font-size:0.8rem; color:#777; margin:0 0 8px 0;">Ranked by total net worth (Wallet + Vault)</p>
+          <div id="leaderboard-rows"></div>
+        </div>
 
-      <button class="btn" style="font-size: 1.2rem; padding: 14px 36px;" onclick="restartEntireGame()">Play Next Day 🔁</button>
+        <!-- Bank Safe Deposit -->
+        <div class="bank-card">
+          <h3 style="margin:0 0 6px 0; color:#4D8076;">🏦 Safe Vault Deposit</h3>
+          <p style="font-size:0.9rem; margin:0 0 8px;">In Hand: <b>🪙 <span id="bank-current-wallet">0</span></b></p>
+          
+          <div class="bank-slider-group">
+            <label style="font-weight:700; font-size:0.85rem;">Deposit to Vault: 🪙 <span id="deposit-amount-label">0</span></label>
+            <input type="range" min="0" max="100" value="0" class="bank-slider" id="bank-deposit-slider" oninput="updateBankSlider(this.value)">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#666; margin-top:2px;">
+              <span>Keep Working Capital (🪙<span id="capital-left-label">0</span>)</span>
+              <span>Vault Deposit</span>
+            </div>
+          </div>
+
+          <div style="background:#F2F8F6; border-radius:12px; padding:8px 12px; font-size:0.85rem; text-align:left;">
+            <div>Vault Balance after: <b>🪙 <span id="projected-vault">0</span></b></div>
+            <div style="color:#C0392B; margin-top:2px;">Reminder: Tomorrow's daily rent is 🪙50!</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn green" style="font-size:1.15rem; padding:12px 34px;" onclick="confirmBankAndNextDay()">Save &amp; Open Next Day ☀️</button>
     </section>
 
-    <!-- STATION NAV (bottom tab bar) -->
+    <!-- STATION NAV -->
     <nav class="station-nav hidden" id="station-nav">
       <button class="station-btn" data-target="screen-diner" onclick="switchStation('screen-diner')"><span class="ic">🏠</span>Storefront</button>
       <button class="station-btn" data-target="screen-quest" onclick="switchStation('screen-quest')"><span class="ic">🎯</span>Quest</button>
@@ -710,110 +680,170 @@
   </div>
 
   <script>
-    const PANTRY = [
-      { id: "carrot", word: "Carrot", sound: "hard", emoji: "🥕" },
-      { id: "cabbage", word: "Cabbage", sound: "hard", emoji: "🥬" },
-      { id: "corn", word: "Corn", sound: "hard", emoji: "🌽" },
-      { id: "cucumber", word: "Cucumber", sound: "hard", emoji: "🥒" },
-      { id: "cupcake", word: "Cupcake", sound: "hard", emoji: "🧁" },
-      { id: "cookie", word: "Cookie", sound: "hard", emoji: "🍪" },
-      { id: "candy", word: "Candy", sound: "hard", emoji: "🍬" },
-      { id: "curry", word: "Curry", sound: "hard", emoji: "🍛" },
-      { id: "coconut", word: "Coconut", sound: "hard", emoji: "🥥" },
-      { id: "cake", word: "Cake", sound: "hard", emoji: "🍰" },
-      { id: "celery", word: "Celery", sound: "soft", emoji: "🌱" },
-      { id: "cinnamon", word: "Cinnamon", sound: "soft", emoji: "🪵" },
-      { id: "cereal", word: "Cereal", sound: "soft", emoji: "🥣" },
-      { id: "citrus", word: "Citrus", sound: "soft", emoji: "🍋" },
-      { id: "cider", word: "Cider", sound: "soft", emoji: "🧃" },
-      { id: "rice", word: "Rice", sound: "soft", emoji: "🍚" },
-      { id: "ice", word: "Ice", sound: "soft", emoji: "🧊" },
-      { id: "lettuce", word: "Lettuce", sound: "soft", emoji: "🥗" },
-      { id: "spice", word: "Spice", sound: "soft", emoji: "🧂" },
-      { id: "juice", word: "Juice", sound: "soft", emoji: "🥤" }
+    const QUEST_VOCABULARY = [
+      // Easy (+15 Coins)
+      { word: "Carrot", sound: "hard", emoji: "🥕", diff: "easy", cat: "Food", reward: 15, hint: "Hard C (/k/) before 'a'" },
+      { word: "Corn", sound: "hard", emoji: "🌽", diff: "easy", cat: "Food", reward: 15, hint: "Hard C (/k/) before 'o'" },
+      { word: "Cake", sound: "hard", emoji: "🍰", diff: "easy", cat: "Food", reward: 15, hint: "Hard C (/k/) before 'a'" },
+      { word: "Cup", sound: "hard", emoji: "☕", diff: "easy", cat: "Drinkware", reward: 15, hint: "Hard C (/k/) before 'u'" },
+      { word: "Cat", sound: "hard", emoji: "🐱", diff: "easy", cat: "General", reward: 15, hint: "Hard C (/k/) sound" },
+      { word: "Ice", sound: "soft", emoji: "🧊", diff: "easy", cat: "Food", reward: 15, hint: "Soft C (/s/) before 'e'" },
+      { word: "Rice", sound: "soft", emoji: "🍚", diff: "easy", cat: "Food", reward: 15, hint: "Soft C (/s/) before 'e'" },
+      { word: "City", sound: "soft", emoji: "🏙️", diff: "easy", cat: "General", reward: 15, hint: "Soft C (/s/) before 'i'" },
+      { word: "Cell", sound: "soft", emoji: "🔋", diff: "easy", cat: "General", reward: 15, hint: "Soft C (/s/) before 'e'" },
+
+      // Medium (+25 Coins)
+      { word: "Cabbage", sound: "hard", emoji: "🥬", diff: "medium", cat: "Food", reward: 25, hint: "Hard C (/k/) sound" },
+      { word: "Cookie", sound: "hard", emoji: "🍪", diff: "medium", cat: "Food", reward: 25, hint: "Hard C (/k/) sound" },
+      { word: "Curry", sound: "hard", emoji: "🍛", diff: "medium", cat: "Food", reward: 25, hint: "Hard C (/k/) sound" },
+      { word: "Clean", sound: "hard", emoji: "🧼", diff: "medium", cat: "General", reward: 25, hint: "Hard C (/k/) before 'l'" },
+      { word: "Castle", sound: "hard", emoji: "🏰", diff: "medium", cat: "General", reward: 25, hint: "Hard C (/k/) sound" },
+      { word: "Cereal", sound: "soft", emoji: "🥣", diff: "medium", cat: "Food", reward: 25, hint: "Soft C (/s/) before 'e'" },
+      { word: "Citrus", sound: "soft", emoji: "🍋", diff: "medium", cat: "Food", reward: 25, hint: "Soft C (/s/) before 'i'" },
+      { word: "Cider", sound: "soft", emoji: "🧃", diff: "medium", cat: "Food", reward: 25, hint: "Soft C (/s/) before 'i'" },
+      { word: "Center", sound: "soft", emoji: "🎯", diff: "medium", cat: "General", reward: 25, hint: "Soft C (/s/) before 'e'" },
+      { word: "Cinema", sound: "soft", emoji: "🎬", diff: "medium", cat: "General", reward: 25, hint: "Soft C (/s/) before 'i'" },
+      { word: "Circle", sound: "soft", emoji: "⭕", diff: "medium", cat: "General", reward: 25, hint: "First C is Soft (/s/)!" },
+
+      // Hard (+40 Coins)
+      { word: "Cucumber", sound: "hard", emoji: "🥒", diff: "hard", cat: "Food", reward: 40, hint: "Hard C (/k/) before 'u'" },
+      { word: "Coconut", sound: "hard", emoji: "🥥", diff: "hard", cat: "Food", reward: 40, hint: "Hard C (/k/) sound" },
+      { word: "Cupcake", sound: "hard", emoji: "🧁", diff: "hard", cat: "Food", reward: 40, hint: "Hard C (/k/) sound" },
+      { word: "Crystal", sound: "hard", emoji: "💎", diff: "hard", cat: "General", reward: 40, hint: "Hard C (/k/) before 'r'" },
+      { word: "Concrete", sound: "hard", emoji: "🧱", diff: "hard", cat: "General", reward: 40, hint: "Hard C (/k/) sound" },
+      { word: "Cinnamon", sound: "soft", emoji: "🪵", diff: "hard", cat: "Food", reward: 40, hint: "Soft C (/s/) before 'i'" },
+      { word: "Celery", sound: "soft", emoji: "🌱", diff: "hard", cat: "Food", reward: 40, hint: "Soft C (/s/) before 'e'" },
+      { word: "Cycle", sound: "soft", emoji: "🚲", diff: "hard", cat: "General", reward: 40, hint: "Soft C (/s/) before 'y'" },
+      { word: "Cylinder", sound: "soft", emoji: "🥫", diff: "hard", cat: "General", reward: 40, hint: "Soft C (/s/) before 'y'" },
+      { word: "Celebrate", sound: "soft", emoji: "🎉", diff: "hard", reward: 40, cat: "General", hint: "Soft C (/s/) before 'e'" }
     ];
 
-    // Recipes are organized into tiers that unlock as the player serves more
-    // customers. Later tiers use more ingredients and feel more "advanced",
-    // but the PROFIT margin (see computeRecipePrice) stays modest on purpose:
-    // most of a dish's price just covers its own ingredient cost, so kids
-    // still need to keep doing Phonics Quests to fund their next order
-    // instead of coasting on one big payday.
-    const RECIPE_TIERS = [
-      {
-        label: "Kids Menu",
-        minServed: 0,
-        recipes: [
-          { id: "snack1", name: "Fresh Garden Cup", icon: "🥗", req: ["cucumber", "celery", "lettuce"] },
-          { id: "snack2", name: "Sweet Snack Box", icon: "🍪", req: ["cookie", "candy", "cake"] },
-          { id: "snack3", name: "Morning Bowl", icon: "🥣", req: ["cereal", "rice", "cider"] }
-        ]
-      },
-      {
-        label: "Bistro Menu",
-        minServed: 2,
-        recipes: [
-          { id: "curry", name: "Cinnamon Curry", icon: "🍛", req: ["carrot", "corn", "cinnamon", "rice"] },
-          { id: "salad", name: "Zesty Green Salad", icon: "🥗", req: ["cucumber", "cabbage", "celery", "citrus"] },
-          { id: "dessert", name: "Sweet Dessert Bowl", icon: "🍧", req: ["cupcake", "cookie", "cereal", "ice"] },
-          { id: "juice", name: "Island Orchard Juice", icon: "🍹", req: ["coconut", "cider", "juice", "ice"] }
-        ]
-      },
-      {
-        label: "Gourmet Menu",
-        minServed: 5,
-        recipes: [
-          { id: "gcurry", name: "Grand Harvest Curry", icon: "🍲", req: ["carrot", "corn", "cinnamon", "rice", "coconut"] },
-          { id: "gsalad", name: "Deluxe Garden Feast", icon: "🥙", req: ["cucumber", "cabbage", "celery", "citrus", "lettuce"] },
-          { id: "gdessert", name: "Royal Dessert Platter", icon: "🍨", req: ["cupcake", "cookie", "cereal", "ice", "cake"] },
-          { id: "gjuice", name: "Tropical Fusion Cooler", icon: "🧋", req: ["coconut", "cider", "juice", "ice", "citrus"] }
-        ]
-      },
-      {
-        label: "Master Chef Menu",
-        minServed: 8,
-        recipes: [
-          { id: "mcurry", name: "Master Chef's Banquet Curry", icon: "👑", req: ["carrot", "corn", "cinnamon", "rice", "coconut", "curry"] },
-          { id: "msalad", name: "Ultimate Garden Symphony", icon: "🌿", req: ["cucumber", "cabbage", "celery", "citrus", "lettuce", "spice"] },
-          { id: "mdessert", name: "Legendary Dessert Tower", icon: "🎂", req: ["cupcake", "cookie", "cereal", "ice", "cake", "candy"] },
-          { id: "mjuice", name: "Supreme Tropical Cooler", icon: "🍹", req: ["coconut", "cider", "juice", "ice", "citrus", "cake"] }
-        ]
-      }
+    const MARKET_ITEMS = [
+      { id: "carrot", word: "Carrot", emoji: "🥕" },
+      { id: "cabbage", word: "Cabbage", emoji: "🥬" },
+      { id: "corn", word: "Corn", emoji: "🌽" },
+      { id: "cucumber", word: "Cucumber", emoji: "🥒" },
+      { id: "cupcake", word: "Cupcake", emoji: "🧁" },
+      { id: "cookie", word: "Cookie", emoji: "🍪" },
+      { id: "curry", word: "Curry", emoji: "🍛" },
+      { id: "coconut", word: "Coconut", emoji: "🥥" },
+      { id: "celery", word: "Celery", emoji: "🌱" },
+      { id: "cereal", word: "Cereal", emoji: "🥣" },
+      { id: "citrus", word: "Citrus", emoji: "🍋" },
+      { id: "cider", word: "Cider", emoji: "🧃" },
+      { id: "rice", word: "Rice", emoji: "🍚" },
+      { id: "ice", word: "Ice", emoji: "🧊" },
+      { id: "lettuce", word: "Lettuce", emoji: "🥗" }
     ];
 
-    const CUSTOMERS = ["🦊", "🐼", "🐻", "🐰", "🦁", "🐨"];
+    const RECIPES = [
+      { id: "salad", name: "Green Tossed Bowl", icon: "🥗", basePrice: 25, req: ["cucumber", "celery", "lettuce"] },
+      { id: "snack", name: "Sweet Treats Combo", icon: "🍪", basePrice: 28, req: ["cookie", "cupcake", "cereal"] },
+      { id: "curry", name: "Spicy Coconut Curry", icon: "🍛", basePrice: 35, req: ["carrot", "corn", "coconut", "rice"] },
+      { id: "cooler", name: "Chilled Citrus Cider", icon: "🍹", basePrice: 30, req: ["citrus", "cider", "ice"] },
+      { id: "crunch", name: "Chef's Cabbage Crunch", icon: "🥘", basePrice: 32, req: ["cabbage", "corn", "carrot"] }
+    ];
 
-    // Ingredient price. Raised from 5 -> 8 coins per item — the Market was
-    // feeling too cheap, letting kids stock up on ingredients without much
-    // Quest income at all.
-    const ITEM_PRICE = 8;
+    const CUSTOMERS = ["🦊", "🐼", "🐻", "🐰", "🦁", "🐨", "🐶", "🐱"];
 
-    let customRestaurantName = "Chef C's Bistro";
-    // Starting coins is 0 on purpose: with nothing in the wallet, kids have
-    // to hop into a Phonics Quest (quiz, catch, or word-match) and reel in
-    // a little starting cash before they can shop and open the restaurant.
-    let coins = 0;
+    const RIVALS = [
+      { name: "Chef Pierre (Le Gourmet)", baseNet: 280, growth: 120 },
+      { name: "Baker Bob (Crispy Bakes)", baseNet: 220, growth: 90 },
+      { name: "Madam Cecile (City Deli)", baseNet: 170, growth: 70 },
+      { name: "Apprentice Alan", baseNet: 100, growth: 50 }
+    ];
+
+    // Game State
+    let currentDay = 1;
+    let customRestaurantName = "Chef C's Diner";
+    let coins = 70; // Starting capital
+    let bankVault = 0;
     let basket = [];
+    let fridge = [];
+
+    // Multi-dish order
     let currentCustomer = null;
-    let currentRecipe = null;
-    let totalServed = 0;
+    let currentOrder = null;
 
-    let lastSound = null;
-    let currentQuiz = null;
+    // Quest timing & cooldown
+    let questActive = false;
+    let questSecondsLeft = 30;
+    let questTimerInterval = null;
+    let questCooldownActive = false;
+    let questCooldownLeft = 15;
+    let questCooldownInterval = null;
+    let currentQuestMode = 'quiz';
 
-    // Quest mode variety: alternate between the multiple-choice quiz and the
-    // "catch" mini-game so kids get a mix of both styles of phonics practice.
-    let questMode = 'quiz';
-    let catchTarget = null;
-    let lastCatchTarget = null;
-    const CATCH_GOAL = 5;
-    let catchFound = 0;
+    // Match task state
+    let matchSelectedEmoji = null;
+    let matchPairsLeft = 0;
 
+    // Time & Hourly Price Escalation
     let gameMinutes = 9 * 60;
     const closingMinutes = 16 * 60;
     let clockInterval = null;
 
-    let registerState = null;
+    // Audio Engine
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+    ['touchstart', 'click', 'keydown'].forEach(evt => {
+      document.addEventListener(evt, () => getAudioContext(), { once: true, passive: true });
+    });
+
+    function tone(freq, dur, type = 'sine') {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    function chaChing() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        [880, 1320, 1760].forEach((freq, i) => {
+          const start = ctx.currentTime + i * 0.1;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.linearRampToValueAtTime(0.1, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.25);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(start); osc.stop(start + 0.26);
+        });
+      } catch (e) {}
+    }
+
+    function pronounce(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US'; u.rate = 0.85;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    function getCurrentItemPrice() {
+      const hoursElapsed = Math.floor((gameMinutes - 9 * 60) / 60);
+      return 10 + (Math.max(0, hoursElapsed) * 10);
+    }
 
     function selectTheme(mainColor, subColor, el) {
       document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
@@ -828,153 +858,16 @@
       const nameInput = document.getElementById('restaurant-name-input');
       customRestaurantName = nameInput.value.trim() || "Chef C's Diner";
       document.getElementById('stage-signboard').textContent = customRestaurantName;
-      startDinerDay();
+      startDay();
     }
 
-    // ===================== How to Play =====================
-    // Remembers which screen was showing (and whether the day had already
-    // started) so closing the help screen returns the player right back
-    // to where they were, instead of restarting the day.
-    let screenBeforeHelp = null;
-    let dayInProgressBeforeHelp = false;
-
-    function openInstructions() {
-      tone(500, 0.1);
-      screenBeforeHelp = document.querySelector('.screen.active')?.id || 'screen-intro';
-      dayInProgressBeforeHelp = clockInterval !== null;
-      if (clockInterval) clearInterval(clockInterval); // pause the shift clock while reading
-      showScreen('screen-instructions');
-    }
-
-    function closeInstructions() {
-      tone(500, 0.1);
-      if (screenBeforeHelp === 'screen-intro' || !screenBeforeHelp) {
-        // First-time flow: reading instructions from the intro screen starts the shift.
-        confirmDinerSetup();
-        return;
-      }
-      showScreen(screenBeforeHelp);
-      if (dayInProgressBeforeHelp) startClockTicking();
-    }
-
-    // ===================== Sound Effects =====================
-    // A single, reused AudioContext works far more reliably across iOS
-    // Safari, Android Chrome, and desktop browsers than creating a brand
-    // new context on every sound (iOS in particular caps how many
-    // contexts a page may create, and requires the context to be
-    // resumed from within a real user gesture).
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return null;
-        audioCtx = new AC();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-      }
-      return audioCtx;
-    }
-    // Unlock/resume audio on the very first tap/click anywhere, since some
-    // mobile browsers only allow audio to start inside a direct gesture.
-    ['touchstart', 'click', 'keydown'].forEach(evt => {
-      document.addEventListener(evt, () => getAudioContext(), { once: true, passive: true });
-    });
-
-    function tone(freq, dur, type = 'sine') {
-      try {
-        const ctx = getAudioContext();
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.12, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(); osc.stop(ctx.currentTime + dur);
-      } catch (e) {}
-    }
-
-    // A little cash-register "cha-ching" for when the customer pays.
-    function chaChing() {
-      try {
-        const ctx = getAudioContext();
-        if (!ctx) return;
-        [880, 1320, 1760].forEach((freq, i) => {
-          const start = ctx.currentTime + i * 0.11;
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.0001, start);
-          gain.gain.linearRampToValueAtTime(0.13, start + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.28);
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.start(start); osc.stop(start + 0.3);
-        });
-      } catch (e) {}
-    }
-
-    // A small bell "ding" for when the register drawer opens.
-    function registerDing() {
-      tone(1000, 0.18, 'triangle');
-      setTimeout(() => tone(1300, 0.15, 'triangle'), 90);
-    }
-
-    function pronounce(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'en-US'; u.rate = 0.85;
-        window.speechSynthesis.speak(u);
-      }
-    }
-
-    // Which menu tier the player is currently on, based on customers served.
-    function getCurrentTierIndex() {
-      let idx = 0;
-      RECIPE_TIERS.forEach((t, i) => { if (totalServed >= t.minServed) idx = i; });
-      return idx;
-    }
-
-    // Price = ingredient cost + a small FLAT tip (not scaled by tier). Since
-    // higher tiers use more (pricier) ingredients but the tip stays fixed,
-    // the profit margin actually shrinks at higher tiers — selling a dish
-    // mostly just refunds what was spent at the Market, so kids can't coast
-    // on dish profit alone and still need Phonics Quest coins to keep going.
-    const DISH_TIP = 5;
-    function computeRecipePrice(req, tierIndex) {
-      return req.length * ITEM_PRICE + DISH_TIP;
-    }
-
-    function showLevelUpToast(label) {
-      tone(750, 0.12);
-      setTimeout(() => tone(950, 0.18), 120);
-      const toast = document.createElement('div');
-      toast.style.cssText = 'position:absolute; top:70px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--wood-dark); padding:10px 22px; border-radius:16px; border:3px solid var(--wood-dark); font-family:"Fredoka One"; font-size:1rem; z-index:60; box-shadow:0 4px 0 var(--wood-dark); animation:floatUp 2.4s ease-out forwards; white-space:nowrap;';
-      toast.textContent = `🎉 New Menu Unlocked: ${label}!`;
-      document.getElementById('app-container').appendChild(toast);
-      setTimeout(() => toast.remove(), 2400);
-    }
-
-    function shuffleArray(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    // ===================== Screen / Station control =====================
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
 
       const topBar = document.getElementById('top-bar');
       const nav = document.getElementById('station-nav');
-      const hideChrome = (id === 'screen-intro' || id === 'screen-instructions' || id === 'screen-closing' || id === 'screen-register');
+      const hideChrome = (id === 'screen-intro' || id === 'screen-closing' || id === 'screen-register');
       topBar.classList.toggle('hidden', hideChrome);
       nav.classList.toggle('hidden', hideChrome);
 
@@ -985,7 +878,7 @@
       tone(450, 0.06);
       if (id === 'screen-market') renderMarket();
       if (id === 'screen-kitchen') renderKitchenStation(false);
-      if (id === 'screen-quest') initQuestRound();
+      if (id === 'screen-diner') renderFridgeUI();
       showScreen(id);
     }
 
@@ -1000,24 +893,72 @@
       }
     }
 
-    // ===================== Day / Clock =====================
+    function updateVault(val) {
+      bankVault = Math.max(0, val);
+      document.getElementById('bank-counter').textContent = bankVault;
+    }
+
+    // ===================== Day & Rent Flow =====================
+    function startDay() {
+      gameMinutes = 9 * 60;
+      document.getElementById('hud-day').textContent = `Day ${currentDay}`;
+      updateCoins(coins);
+      updateVault(bankVault);
+      updateAnalogClockDisplay();
+      renderFridgeUI();
+      showScreen('screen-diner');
+
+      // Trigger Rent Payment Modal at start of day
+      showDailyRentModal();
+    }
+
+    function showDailyRentModal() {
+      tone(350, 0.2, 'triangle');
+      document.getElementById('rent-modal-day-text').textContent = `Day ${currentDay} Storefront Lease`;
+      
+      let deductSource = "Wallet Cash";
+      if (coins >= 50) {
+        deductSource = "Wallet Cash (🪙50 Deducted)";
+      } else if (coins + bankVault >= 50) {
+        deductSource = "Wallet + Vault Backup";
+      } else {
+        deductSource = "Emergency Loan (Debt)";
+      }
+      document.getElementById('rent-modal-deduct-info').innerHTML = `<span>Deduction:</span><b>${deductSource}</b>`;
+      document.getElementById('rent-modal').classList.add('active');
+    }
+
+    function confirmRentPaid() {
+      // Execute 50 coins deduction
+      if (coins >= 50) {
+        updateCoins(coins - 50, true);
+      } else {
+        const remaining = 50 - coins;
+        updateCoins(0, true);
+        if (bankVault >= remaining) {
+          updateVault(bankVault - remaining);
+        } else {
+          updateVault(0);
+        }
+      }
+
+      tone(700, 0.2);
+      document.getElementById('rent-modal').classList.remove('active');
+      startClockTicking();
+      spawnNewCustomer();
+      checkQuestStateOnScreen();
+    }
+
     function startClockTicking() {
       clearInterval(clockInterval);
       clockInterval = setInterval(() => {
-        gameMinutes++;
+        gameMinutes += 2;
         updateAnalogClockDisplay();
+        document.getElementById('market-curr-price').textContent = getCurrentItemPrice();
         if (gameMinutes >= closingMinutes) {
           endOfDay();
         }
       }, 1000);
-    }
-
-    function startDinerDay() {
-      gameMinutes = 9 * 60;
-      updateAnalogClockDisplay();
-      showScreen('screen-diner');
-      startClockTicking();
-      spawnNewCustomer();
     }
 
     function updateAnalogClockDisplay() {
@@ -1035,34 +976,36 @@
       document.getElementById('clock-digital').textContent = `${displayHour}:${padMins} ${period}`;
     }
 
-    // ===================== Storefront =====================
+    // ===================== Customer & Orders =====================
     function spawnNewCustomer() {
       const actor = document.getElementById('customer-actor');
       actor.classList.remove('arrive');
       document.getElementById('recipe-sheet').style.display = 'none';
-      basket = [];
 
       setTimeout(() => {
         currentCustomer = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)];
+        const recipe = RECIPES[Math.floor(Math.random() * RECIPES.length)];
+        const quantity = Math.floor(Math.random() * 3) + 2;
+        const unitPrice = recipe.basePrice + (Math.floor(Math.random() * 4) * 5);
+        const totalPrice = unitPrice * quantity;
 
-        const tierIndex = getCurrentTierIndex();
-        const tier = RECIPE_TIERS[tierIndex];
-        const recipeBase = tier.recipes[Math.floor(Math.random() * tier.recipes.length)];
-        const price = computeRecipePrice(recipeBase.req, tierIndex);
-        currentRecipe = { ...recipeBase, price, tierIndex, tierLabel: tier.label };
+        currentOrder = { recipe, quantity, unitPrice, totalPrice };
 
         document.getElementById('customer-avatar').textContent = currentCustomer;
-        document.getElementById('order-dish-icon').textContent = currentRecipe.icon;
-        document.getElementById('order-dish-text').textContent = currentRecipe.name;
+        document.getElementById('order-dish-icon').textContent = recipe.icon;
+        document.getElementById('order-dish-text').textContent = `${quantity}x ${recipe.name}`;
 
-        document.getElementById('recipe-name').textContent = `${currentRecipe.icon} ${currentRecipe.name} — ${currentRecipe.tierLabel} (Earns 🪙 ${currentRecipe.price})`;
+        document.getElementById('recipe-name').textContent = `${recipe.icon} ${recipe.name}`;
+        document.getElementById('recipe-multi-info').textContent =
+          `Customer wants ${quantity} dishes! (🪙${unitPrice} each = 🪙${totalPrice} total)`;
+
         const reqBox = document.getElementById('recipe-req-box');
         reqBox.innerHTML = '';
-        currentRecipe.req.forEach(id => {
-          const item = PANTRY.find(p => p.id === id);
+        recipe.req.forEach(id => {
+          const item = MARKET_ITEMS.find(m => m.id === id);
           reqBox.innerHTML += `
             <div class="recipe-item">
-              <span style="font-size:24px;">${item.emoji}</span><br>${item.word}
+              <span style="font-size:22px;">${item.emoji}</span><br>${item.word} × ${quantity}
             </div>
           `;
         });
@@ -1078,153 +1021,263 @@
       tone(450, 0.08);
     }
 
-    // ===================== Phonics Quest =====================
-    // Picks a random mode (quiz, catch, or word-match) each round for variety.
-    let currentMatch = null;
+    // ===================== Fridge Storage =====================
+    function renderFridgeUI() {
+      const tray = document.getElementById('fridge-inventory');
+      tray.innerHTML = '';
+      if (fridge.length === 0) {
+        tray.innerHTML = '<span style="color:#4B6584; font-size:0.85rem;">Fridge is empty. Buy extra items in Market and store them!</span>';
+        return;
+      }
+      fridge.forEach((id, index) => {
+        const item = MARKET_ITEMS.find(m => m.id === id);
+        const chip = document.createElement('div');
+        chip.className = 'inv-chip';
+        chip.innerHTML = `<span>${item.emoji}</span> ${item.word}`;
+        chip.title = "Tap to move to cooking basket";
+        chip.onclick = () => transferFridgeToBasket(index);
+        tray.appendChild(chip);
+      });
+    }
 
-    function initQuestRound() {
-      const modes = ['quiz', 'catch', 'match'];
-      questMode = modes[Math.floor(Math.random() * modes.length)];
-      const instructions = document.getElementById('quest-instructions');
-      const quizBox = document.getElementById('quiz-box');
-      const catchBox = document.getElementById('catch-box');
-      const matchBox = document.getElementById('match-box');
+    function transferFridgeToBasket(index) {
+      const item = fridge.splice(index, 1)[0];
+      basket.push(item);
+      tone(520, 0.08);
+      renderFridgeUI();
+      updateBasketHUD();
+    }
 
-      quizBox.style.display = 'none';
-      catchBox.style.display = 'none';
-      matchBox.style.display = 'none';
+    function storeBasketToFridge() {
+      if (basket.length === 0) {
+        alert("Basket is empty!");
+        return;
+      }
+      fridge.push(...basket);
+      basket = [];
+      tone(420, 0.1);
+      renderMarket();
+      renderFridgeUI();
+    }
 
-      if (questMode === 'quiz') {
-        quizBox.style.display = 'block';
-        instructions.textContent = 'Answer correctly (+10 Coins). Wrong answers deduct (-5 Coins)!';
-        nextQuizItem();
-      } else if (questMode === 'catch') {
-        catchBox.style.display = 'block';
-        instructions.textContent = 'Click every matching ingredient! (+10 each, -5 for a mistake)';
-        startCatchRound();
+    // ===================== Diversified 30s Quest Engine =====================
+    function checkQuestStateOnScreen() {
+      const startBtn = document.getElementById('btn-start-quest');
+      const coolBox = document.getElementById('quest-cooldown-box');
+
+      hideAllQuestCards();
+
+      if (questCooldownActive) {
+        coolBox.style.display = 'block';
+        startBtn.style.display = 'none';
+      } else if (!questActive) {
+        coolBox.style.display = 'none';
+        startBtn.style.display = 'inline-flex';
       } else {
-        matchBox.style.display = 'block';
-        instructions.textContent = 'Pick the word that matches the picture! (+10 Coins, -5 for a mistake)';
-        startMatchRound();
+        coolBox.style.display = 'none';
+        startBtn.style.display = 'none';
+        displayCurrentQuestCard();
       }
     }
 
-    function nextQuizItem() {
-      const targetSound = lastSound === 'hard' ? 'soft' : (lastSound === 'soft' ? 'hard' : (Math.random() > 0.5 ? 'hard' : 'soft'));
-      const pool = PANTRY.filter(i => i.sound === targetSound);
-      currentQuiz = pool[Math.floor(Math.random() * pool.length)];
-      lastSound = targetSound;
+    function hideAllQuestCards() {
+      document.getElementById('quest-card-quiz').style.display = 'none';
+      document.getElementById('quest-card-fish').style.display = 'none';
+      document.getElementById('quest-card-match').style.display = 'none';
+    }
 
-      document.getElementById('q-emoji').textContent = currentQuiz.emoji;
-      document.getElementById('q-word').textContent = currentQuiz.word;
-      pronounce(currentQuiz.word);
+    function displayCurrentQuestCard() {
+      hideAllQuestCards();
+      if (currentQuestMode === 'quiz') document.getElementById('quest-card-quiz').style.display = 'block';
+      if (currentQuestMode === 'fish') document.getElementById('quest-card-fish').style.display = 'block';
+      if (currentQuestMode === 'match') document.getElementById('quest-card-match').style.display = 'block';
+    }
+
+    function startQuestSession() {
+      questActive = true;
+      questSecondsLeft = 30;
+      document.getElementById('quest-countdown').textContent = `${questSecondsLeft}s`;
+      checkQuestStateOnScreen();
+
+      pickRandomQuestMode();
+
+      clearInterval(questTimerInterval);
+      questTimerInterval = setInterval(() => {
+        questSecondsLeft--;
+        document.getElementById('quest-countdown').textContent = `${questSecondsLeft}s`;
+        if (questSecondsLeft <= 0) {
+          endQuestSession();
+        }
+      }, 1000);
+    }
+
+    function pickRandomQuestMode() {
+      if (!questActive) return;
+      const modes = ['quiz', 'fish', 'match'];
+      currentQuestMode = modes[Math.floor(Math.random() * modes.length)];
+      displayCurrentQuestCard();
+
+      if (currentQuestMode === 'quiz') setupQuizTask();
+      if (currentQuestMode === 'fish') setupFishingTask();
+      if (currentQuestMode === 'match') setupMatchTask();
+    }
+
+    function endQuestSession() {
+      clearInterval(questTimerInterval);
+      questActive = false;
+      questCooldownActive = true;
+      questCooldownLeft = 15;
+      checkQuestStateOnScreen();
+
+      document.getElementById('cooldown-timer').textContent = `Ready in: ${questCooldownLeft}s`;
+      clearInterval(questCooldownInterval);
+      questCooldownInterval = setInterval(() => {
+        questCooldownLeft--;
+        document.getElementById('cooldown-timer').textContent = `Ready in: ${questCooldownLeft}s`;
+        if (questCooldownLeft <= 0) {
+          clearInterval(questCooldownInterval);
+          questCooldownActive = false;
+          checkQuestStateOnScreen();
+        }
+      }, 1000);
+    }
+
+    // Task 1: Phonics Quiz
+    let currentQuizItem = null;
+    function setupQuizTask() {
+      currentQuizItem = QUEST_VOCABULARY[Math.floor(Math.random() * QUEST_VOCABULARY.length)];
+      document.getElementById('q-word').textContent = currentQuizItem.word;
+      document.getElementById('q-emoji').textContent = currentQuizItem.emoji;
+      document.getElementById('q-desc-hint').textContent = `Hint: ${currentQuizItem.hint}`;
+
+      const tag = document.getElementById('q-diff');
+      tag.className = `difficulty-tag ${currentQuizItem.diff}`;
+      tag.textContent = `${currentQuizItem.diff.toUpperCase()} (+${currentQuizItem.reward} Coins)`;
+
+      const catBadge = document.getElementById('q-cat');
+      catBadge.textContent = currentQuizItem.cat;
+
+      pronounce(currentQuizItem.word);
     }
 
     function speakActiveWord() {
-      if (currentQuiz) pronounce(currentQuiz.word);
-    }
-
-    // Word-match round: shows an emoji and 3 word options (word <-> emoji
-    // vocabulary pairing), the kid taps the word that matches the picture.
-    function startMatchRound() {
-      currentMatch = PANTRY[Math.floor(Math.random() * PANTRY.length)];
-      document.getElementById('match-emoji').textContent = currentMatch.emoji;
-
-      const wrongChoices = shuffleArray(PANTRY.filter(p => p.id !== currentMatch.id)).slice(0, 2);
-      const choices = shuffleArray([currentMatch, ...wrongChoices]);
-
-      const box = document.getElementById('match-options');
-      box.innerHTML = '';
-      choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'match-option-btn';
-        btn.textContent = choice.word;
-        btn.onclick = () => submitMatchAnswer(choice.id === currentMatch.id, btn);
-        box.appendChild(btn);
-      });
-
-      pronounce(currentMatch.word);
-    }
-
-    function speakActiveMatch() {
-      if (currentMatch) pronounce(currentMatch.word);
-    }
-
-    function submitMatchAnswer(isCorrect, btnEl) {
-      document.querySelectorAll('#match-options .match-option-btn').forEach(b => b.onclick = null);
-      if (isCorrect) {
-        tone(700, 0.15);
-        btnEl.classList.add('correct');
-        updateCoins(coins + 10);
-        spawnScoreFloat('+10', true, btnEl);
-      } else {
-        tone(220, 0.2, 'sawtooth');
-        btnEl.classList.add('wrong');
-        updateCoins(coins - 5, true);
-        spawnScoreFloat('-5', false, btnEl);
-      }
-      setTimeout(initQuestRound, 700);
+      if (currentQuizItem) pronounce(currentQuizItem.word);
     }
 
     function submitQuizAnswer(ans, btnEl) {
-      if (ans === currentQuiz.sound) {
-        tone(700, 0.15);
-        updateCoins(coins + 10);
-        spawnScoreFloat("+10", true, btnEl);
+      if (!questActive) return;
+      if (ans === currentQuizItem.sound) {
+        tone(720, 0.15);
+        updateCoins(coins + currentQuizItem.reward);
+        spawnScoreFloat(`+${currentQuizItem.reward}`, true, btnEl);
       } else {
         tone(220, 0.2, 'sawtooth');
         updateCoins(coins - 5, true);
         spawnScoreFloat("-5", false, btnEl);
       }
-      setTimeout(initQuestRound, 500);
+      setTimeout(pickRandomQuestMode, 400);
     }
 
-    // "Catch" style quest: kid clicks the 5 ingredients matching the target
-    // sound out of a mixed grid of 12 items.
-    function startCatchRound() {
-      catchTarget = lastCatchTarget === 'hard' ? 'soft' : (lastCatchTarget === 'soft' ? 'hard' : (Math.random() > 0.5 ? 'hard' : 'soft'));
-      lastCatchTarget = catchTarget;
-      catchFound = 0;
+    // Task 2: Fishing Mode
+    let fishTargetSound = 'soft';
+    let fishRemainingTarget = 0;
+    function setupFishingTask() {
+      fishTargetSound = Math.random() > 0.5 ? 'soft' : 'hard';
+      const soundTitle = fishTargetSound === 'soft' ? 'Soft C (/s/)' : 'Hard C (/k/)';
+      document.getElementById('fish-prompt').textContent = `🎣 Catch all ${soundTitle} items!`;
 
-      document.getElementById('catch-progress').textContent = '0';
-      document.getElementById('catch-goal').textContent = CATCH_GOAL;
-      const label = catchTarget === 'hard' ? 'Hard C (/k/)' : 'Soft C (/s/)';
-      document.getElementById('catch-target-title').textContent = `🎣 Catch ${CATCH_GOAL} ${label} items!`;
+      const targets = QUEST_VOCABULARY.filter(v => v.sound === fishTargetSound).sort(() => 0.5 - Math.random()).slice(0, 3);
+      const others = QUEST_VOCABULARY.filter(v => v.sound !== fishTargetSound).sort(() => 0.5 - Math.random()).slice(0, 5);
+      const combined = [...targets, ...others].sort(() => 0.5 - Math.random());
+      fishRemainingTarget = targets.length;
 
-      const matches = shuffleArray(PANTRY.filter(p => p.sound === catchTarget)).slice(0, CATCH_GOAL);
-      const distractors = shuffleArray(PANTRY.filter(p => p.sound !== catchTarget)).slice(0, 7);
-      const items = shuffleArray([...matches, ...distractors]);
-
-      const grid = document.getElementById('catch-grid');
+      const grid = document.getElementById('fish-grid');
       grid.innerHTML = '';
-      items.forEach(item => {
-        const cell = document.createElement('div');
-        cell.className = 'catch-item';
-        cell.title = item.word;
-        cell.innerHTML = `<span class="catch-emoji">${item.emoji}</span><span class="catch-word">${item.word}</span>`;
-        cell.onclick = () => handleCatchClick(item, cell);
-        grid.appendChild(cell);
+      combined.forEach(item => {
+        const tile = document.createElement('div');
+        tile.className = 'fish-tile';
+        tile.innerHTML = `<span style="font-size:24px;">${item.emoji}</span><span style="font-size:0.75rem; font-weight:700;">${item.word}</span>`;
+        tile.onclick = () => catchFish(item, tile);
+        grid.appendChild(tile);
       });
-
-      pronounce(`Catch the ${catchTarget === 'hard' ? 'hard C' : 'soft C'} items`);
     }
 
-    function handleCatchClick(item, el) {
-      if (item.sound === catchTarget) {
-        tone(700, 0.15);
-        el.classList.add('correct');
-        updateCoins(coins + 10);
-        spawnScoreFloat('+10', true, el);
-        catchFound++;
-        document.getElementById('catch-progress').textContent = catchFound;
-        if (catchFound >= CATCH_GOAL) {
-          setTimeout(() => { tone(900, 0.3); initQuestRound(); }, 600);
+    function catchFish(item, tileEl) {
+      if (!questActive || tileEl.classList.contains('done')) return;
+      if (item.sound === fishTargetSound) {
+        tone(780, 0.12);
+        tileEl.classList.add('done');
+        updateCoins(coins + 20);
+        spawnScoreFloat('+20', true, tileEl);
+        fishRemainingTarget--;
+        if (fishRemainingTarget <= 0) {
+          setTimeout(pickRandomQuestMode, 500);
         }
       } else {
         tone(220, 0.2, 'sawtooth');
-        el.classList.add('wrong');
+        tileEl.style.borderColor = 'var(--danger-red)';
         updateCoins(coins - 5, true);
-        spawnScoreFloat('-5', false, el);
+        spawnScoreFloat('-5', false, tileEl);
+      }
+    }
+
+    // Task 3: Match Mode
+    function setupMatchTask() {
+      matchSelectedEmoji = null;
+      const picked = QUEST_VOCABULARY.sort(() => 0.5 - Math.random()).slice(0, 3);
+      matchPairsLeft = picked.length;
+
+      const emojisCol = document.getElementById('match-emojis');
+      const wordsCol = document.getElementById('match-words');
+      emojisCol.innerHTML = '';
+      wordsCol.innerHTML = '';
+
+      const shuffledEmojis = [...picked].sort(() => 0.5 - Math.random());
+      const shuffledWords = [...picked].sort(() => 0.5 - Math.random());
+
+      shuffledEmojis.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'match-btn';
+        btn.innerHTML = `<span style="font-size:26px;">${item.emoji}</span>`;
+        btn.onclick = () => selectMatchEmoji(item, btn);
+        emojisCol.appendChild(btn);
+      });
+
+      shuffledWords.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'match-btn';
+        btn.textContent = item.word;
+        btn.onclick = () => selectMatchWord(item, btn);
+        wordsCol.appendChild(btn);
+      });
+    }
+
+    function selectMatchEmoji(item, btnEl) {
+      if (!questActive) return;
+      document.querySelectorAll('#match-emojis .match-btn').forEach(b => b.classList.remove('selected'));
+      btnEl.classList.add('selected');
+      matchSelectedEmoji = { item, btn: btnEl };
+      tone(450, 0.08);
+      pronounce(item.word);
+    }
+
+    function selectMatchWord(wordItem, wordBtnEl) {
+      if (!questActive || !matchSelectedEmoji) return;
+      if (matchSelectedEmoji.item.word === wordItem.word) {
+        tone(820, 0.15);
+        matchSelectedEmoji.btn.classList.add('matched');
+        wordBtnEl.classList.add('matched');
+        updateCoins(coins + 25);
+        spawnScoreFloat('+25', true, wordBtnEl);
+        matchSelectedEmoji = null;
+        matchPairsLeft--;
+        if (matchPairsLeft <= 0) {
+          setTimeout(pickRandomQuestMode, 500);
+        }
+      } else {
+        tone(220, 0.2, 'sawtooth');
+        updateCoins(coins - 5, true);
+        spawnScoreFloat('-5', false, wordBtnEl);
       }
     }
 
@@ -1234,26 +1287,26 @@
       float.textContent = text;
       const rect = el.getBoundingClientRect();
       const parent = document.getElementById('app-container').getBoundingClientRect();
-      float.style.left = (rect.left - parent.left + 30) + 'px';
+      float.style.left = (rect.left - parent.left + 20) + 'px';
       float.style.top = (rect.top - parent.top - 10) + 'px';
       document.getElementById('app-container').appendChild(float);
       setTimeout(() => float.remove(), 800);
     }
 
-    // ===================== Market =====================
+    // ===================== Market Station =====================
     function renderMarket() {
-      document.getElementById('market-price-hint').textContent = ITEM_PRICE;
+      const currPrice = getCurrentItemPrice();
+      document.getElementById('market-curr-price').textContent = currPrice;
       const shelf = document.getElementById('market-shelf');
       shelf.innerHTML = '';
-      PANTRY.forEach(item => {
-        const inBasket = basket.includes(item.id);
+      MARKET_ITEMS.forEach(item => {
+        const countInBasket = basket.filter(id => id === item.id).length;
         shelf.innerHTML += `
-          <div class="item-crate ${inBasket ? 'bought' : ''}">
-            <div style="font-size: 30px;">${item.emoji}</div>
-            <strong style="font-size:0.75rem; margin:2px 0;">${item.word}</strong>
-            ${inBasket
-              ? `<button class="remove-btn" onclick="removeMarketItem('${item.id}')">✕ Remove</button>`
-              : `<button onclick="buyMarketItem('${item.id}')">🪙 ${ITEM_PRICE}</button>`}
+          <div class="item-crate">
+            <div style="font-size: 28px;">${item.emoji}</div>
+            <strong style="font-size:0.75rem;">${item.word}</strong>
+            <span style="font-size:0.7rem; color:#666;">Basket: ${countInBasket}</span>
+            <button onclick="buyMarketItem('${item.id}')">🪙 ${currPrice}</button>
           </div>
         `;
       });
@@ -1261,24 +1314,22 @@
     }
 
     function buyMarketItem(id) {
-      if (coins >= ITEM_PRICE) {
-        updateCoins(coins - ITEM_PRICE);
+      const price = getCurrentItemPrice();
+      if (coins >= price) {
+        updateCoins(coins - price);
         basket.push(id);
-        tone(900, 0.08);
+        tone(880, 0.08);
         renderMarket();
       } else {
         tone(220, 0.2, 'sawtooth');
-        alert("Not enough coins! Go complete a Phonics Quest.");
+        alert("Not enough coins! Earn more in the Challenge Quests.");
       }
     }
 
-    // Removes one copy of an ingredient from the basket and refunds its
-    // coin cost, so kids can fix a mistake without losing money for it.
-    function removeMarketItem(id) {
-      const idx = basket.indexOf(id);
-      if (idx === -1) return;
-      basket.splice(idx, 1);
-      updateCoins(coins + ITEM_PRICE);
+    function removeMarketItem(index) {
+      const price = getCurrentItemPrice();
+      basket.splice(index, 1);
+      updateCoins(coins + price);
       tone(350, 0.1, 'triangle');
       renderMarket();
     }
@@ -1288,115 +1339,126 @@
       if (basket.length === 0) {
         box.textContent = "🛒 (Empty)";
       } else {
-        box.innerHTML = basket.map(id => {
-          const item = PANTRY.find(p => p.id === id);
-          return `<span class="basket-chip" title="Remove ${item.word}" onclick="removeMarketItem('${id}')">${item.emoji}</span>`;
+        box.innerHTML = basket.map((id, idx) => {
+          const item = MARKET_ITEMS.find(m => m.id === id);
+          return `<span style="cursor:pointer; font-size:1.2rem;" title="Remove ${item.word}" onclick="removeMarketItem(${idx})">${item.emoji}</span>`;
         }).join(' ');
       }
     }
 
-    // ===================== Kitchen =====================
+    // ===================== Kitchen Station =====================
     function renderKitchenStation(cooking) {
       document.getElementById('kitchen-cooking-anim').style.display = cooking ? 'block' : 'none';
       document.getElementById('kitchen-result').style.display = 'none';
       document.getElementById('kitchen-order-card').style.display = cooking ? 'none' : 'block';
       document.getElementById('kitchen-cook-btn').style.display = cooking ? 'none' : 'inline-flex';
 
-      if (!cooking) {
-        document.getElementById('kitchen-order-title').textContent = currentRecipe
-          ? `${currentRecipe.icon} ${currentRecipe.name} — ${currentRecipe.tierLabel}` : 'No active order';
+      if (!cooking && currentOrder) {
+        document.getElementById('kitchen-order-title').textContent = `${currentOrder.recipe.icon} ${currentOrder.recipe.name}`;
+        document.getElementById('kitchen-multi-info').textContent =
+          `Preparing ${currentOrder.quantity} plates (Need ${currentOrder.quantity} of each ingredient)`;
+
         const list = document.getElementById('kitchen-checklist');
         list.innerHTML = '';
-        if (currentRecipe) {
-          currentRecipe.req.forEach(id => {
-            const item = PANTRY.find(p => p.id === id);
-            const has = basket.includes(id);
-            list.innerHTML += `
-              <div class="recipe-item" style="${has ? 'background:#DFF0D8;border-color:#3C763D;' : ''}">
-                ${has ? '✅' : '⬜'} ${item.emoji} ${item.word}
-              </div>`;
-          });
-        }
+        currentOrder.recipe.req.forEach(id => {
+          const item = MARKET_ITEMS.find(m => m.id === id);
+          const haveCount = basket.filter(x => x === id).length;
+          const reqCount = currentOrder.quantity;
+          const ok = haveCount >= reqCount;
+          list.innerHTML += `
+            <div class="recipe-item" style="${ok ? 'background:#DFF0D8; border-color:#3C763D;' : ''}">
+              ${ok ? '✅' : '⬜'} ${item.emoji} ${item.word} (${haveCount}/${reqCount})
+            </div>
+          `;
+        });
       }
     }
 
     function cookAndServe() {
-      if (!currentRecipe) return;
+      if (!currentOrder) return;
       if (basket.length === 0) {
-        tone(220, 0.2, 'sawtooth');
-        alert("Your shopping basket is empty! Buy ingredients in the Market first.");
+        alert("Basket is empty! Pick up ingredients from Market or Fridge.");
         switchStation('screen-market');
         return;
       }
 
-      tone(400, 0.12, 'triangle');
       switchStation('screen-kitchen');
       renderKitchenStation(true);
 
-      const req = [...currentRecipe.req].sort();
-      const bought = [...basket].sort();
-      const isExact = req.length === bought.length && req.every((val, i) => val === bought[i]);
-      const missing = currentRecipe.req.filter(id => !basket.includes(id));
-      const extra = basket.filter(id => !currentRecipe.req.includes(id));
+      let allPassed = true;
+      currentOrder.recipe.req.forEach(id => {
+        const haveCount = basket.filter(x => x === id).length;
+        if (haveCount < currentOrder.quantity) allPassed = false;
+      });
 
       setTimeout(() => {
         document.getElementById('kitchen-cooking-anim').style.display = 'none';
         const resultBox = document.getElementById('kitchen-result');
         resultBox.style.display = 'block';
 
-        if (isExact) {
+        if (allPassed) {
+          currentOrder.recipe.req.forEach(id => {
+            for (let i = 0; i < currentOrder.quantity; i++) {
+              const idx = basket.indexOf(id);
+              if (idx > -1) basket.splice(idx, 1);
+            }
+          });
+
           tone(800, 0.3);
           resultBox.innerHTML = `
-            <div style="font-size:70px;">${currentRecipe.icon}✨</div>
-            <h2 style="color:var(--hard-c-amber);">Perfect Dish!</h2>
-            <p class="desc">${currentCustomer} can't wait to pay you!</p>
+            <div style="font-size:60px;">${currentOrder.recipe.icon} × ${currentOrder.quantity}✨</div>
+            <h2 style="color:var(--hard-c-amber);">Deliciously Done!</h2>
+            <p class="desc">${currentCustomer} is waiting at the cash register!</p>
           `;
-          basket = [];
-          setTimeout(() => openRegister(currentRecipe.price), 1300);
+          setTimeout(() => openRegister(), 1200);
         } else {
           tone(200, 0.35, 'sawtooth');
-          const msg = extra.length
-            ? `Wrong ingredients: ${extra.map(id => PANTRY.find(p => p.id === id).word).join(', ')}`
-            : `Missing: ${missing.map(id => PANTRY.find(p => p.id === id).word).join(', ')}`;
           resultBox.innerHTML = `
-            <div style="font-size:70px;">🤢💨</div>
-            <h2>Order Failed!</h2>
-            <p class="desc">${msg}</p>
-            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-              <button class="btn blue" onclick="switchStation('screen-market')">Fix Basket 🛒</button>
-              <button class="btn gray" onclick="skipCustomer()">Skip Customer</button>
-            </div>
+            <div style="font-size:60px;">🍳❌</div>
+            <h2>Not Enough Ingredients!</h2>
+            <p class="desc">You need ${currentOrder.quantity} of each ingredient for this order.</p>
+            <button class="btn blue" onclick="switchStation('screen-market')">Visit Market 🛒</button>
           `;
           document.getElementById('kitchen-cook-btn').style.display = 'none';
         }
-      }, 1500);
+      }, 1200);
     }
 
-    function skipCustomer() {
-      tone(320, 0.15, 'triangle');
-      basket = [];
-      spawnNewCustomer();
-      switchStation('screen-diner');
-    }
+    // ===================== Cash Register & Math =====================
+    let registerState = null;
 
-    // ===================== Cash Register (change-making) =====================
-    function computeBill(price) {
-      let bill = Math.ceil(price / 50) * 50;
-      if (bill === price) bill += 50;
-      return bill;
-    }
+    function openRegister() {
+      tone(800, 0.1);
+      const { quantity, unitPrice, totalPrice } = currentOrder;
 
-    function openRegister(price) {
-      registerDing();
-      const bill = computeBill(price);
-      registerState = { price, bill, correctChange: bill - price, typed: '', attempts: 0 };
+      const billOptions = [
+        Math.ceil(totalPrice / 50) * 50,
+        Math.ceil(totalPrice / 100) * 100,
+        totalPrice + 10,
+        totalPrice + 25,
+        totalPrice + 40
+      ];
+      let customerPaid = billOptions[Math.floor(Math.random() * billOptions.length)];
+      if (customerPaid <= totalPrice) customerPaid = totalPrice + 25;
 
-      const billCount = Math.max(1, Math.min(4, Math.round(bill / 100)));
-      document.getElementById('register-bill').textContent = '💵'.repeat(billCount);
-      document.getElementById('register-info').innerHTML =
-        `Price: 🪙 <b>${price}</b> — Customer pays with a 🪙 <b>${bill}</b> bill!`;
+      const correctChange = customerPaid - totalPrice;
+
+      registerState = {
+        totalPrice,
+        customerPaid,
+        correctChange,
+        typed: ''
+      };
+
+      document.getElementById('reg-dish-qty').textContent = quantity;
+      document.getElementById('reg-dish-name').textContent = currentOrder.recipe.name;
+      document.getElementById('reg-unit-price').textContent = unitPrice;
+      document.getElementById('reg-qty-math').textContent = `${quantity} × 🪙${unitPrice}`;
+      document.getElementById('reg-total-price').textContent = totalPrice;
+      document.getElementById('reg-given-cash').textContent = customerPaid;
+
       document.getElementById('calc-display').textContent = '_';
-      document.getElementById('register-feedback').textContent = 'How much change do you give back?';
+      document.getElementById('register-feedback').textContent = 'Calculate change to return:';
       document.getElementById('register-feedback').style.color = 'var(--wood-dark)';
 
       showScreen('screen-register');
@@ -1421,73 +1483,87 @@
 
       if (val === registerState.correctChange) {
         chaChing();
-        updateCoins(coins + registerState.price);
-        const prevTierIndex = getCurrentTierIndex();
-        totalServed++;
-        const newTierIndex = getCurrentTierIndex();
+        updateCoins(coins + registerState.totalPrice);
+
         fb.style.color = 'var(--hard-c-amber)';
-        fb.textContent = `Correct! Here's your 🪙${val} change! 🎉`;
-        if (newTierIndex > prevTierIndex) {
-          setTimeout(() => showLevelUpToast(RECIPE_TIERS[newTierIndex].label), 300);
-        }
+        fb.textContent = `Correct! Change 🪙${val} returned! (+🪙${registerState.totalPrice}) 🎉`;
+
         setTimeout(() => {
           spawnNewCustomer();
           switchStation('screen-diner');
-        }, 1400);
+        }, 1500);
       } else {
         tone(220, 0.2, 'sawtooth');
-        registerState.attempts++;
-        const panel = document.getElementById('register-panel');
-        panel.classList.add('shake-loss');
-        setTimeout(() => panel.classList.remove('shake-loss'), 350);
-
         fb.style.color = 'var(--danger-red)';
-        if (registerState.attempts >= 2) {
-          fb.textContent = `Hint: 🪙${registerState.bill} − 🪙${registerState.price} = 🪙${registerState.correctChange}`;
-        } else {
-          fb.textContent = 'Not quite, try again!';
-        }
+        fb.textContent = `Incorrect! (Paid 🪙${registerState.customerPaid} - Total 🪙${registerState.totalPrice} = 🪙${registerState.correctChange})`;
         registerState.typed = '';
         document.getElementById('calc-display').textContent = '_';
       }
     }
 
-    // ===================== Day End / Leaderboard =====================
+    // ===================== Day-End, Bank & Town Leaderboard =====================
     function endOfDay() {
       clearInterval(clockInterval);
       tone(500, 0.2);
       showScreen('screen-closing');
 
-      const rivals = [
-        { name: "Chef Pierre (Le Bistro)", score: 480 },
-        { name: `${customRestaurantName} (YOU) 👨‍🍳`, score: coins, isUser: true },
-        { name: "Baker Bob (Sweet C)", score: 360 },
-        { name: "Salad Sally (Crisp Garden)", score: 240 }
-      ].sort((a, b) => b.score - a.score);
+      document.getElementById('closing-title').textContent = `Day ${currentDay} Ended (04:00 PM)`;
+      document.getElementById('bank-current-wallet').textContent = coins;
 
-      const board = document.getElementById('leaderboard-display');
-      board.innerHTML = `
-        <h3 style="margin: 0 0 12px 0;">🏆 Daily Restaurant Earnings</h3>
-        <p style="color:#725740; font-size:0.95rem; margin-bottom:14px;">Total Dishes Served: <b>${totalServed}</b></p>
-      `;
+      renderTownLeaderboard();
 
-      rivals.forEach((r, idx) => {
-        board.innerHTML += `
-          <div class="leader-row ${r.isUser ? 'highlight' : ''}">
-            <span>#${idx + 1} ${r.name}</span>
-            <span>🪙 ${r.score}</span>
+      const slider = document.getElementById('bank-deposit-slider');
+      slider.max = coins;
+      slider.value = Math.floor(coins * 0.5);
+      updateBankSlider(slider.value);
+    }
+
+    function renderTownLeaderboard() {
+      const totalNetWorth = coins + bankVault;
+      const roster = RIVALS.map(r => ({
+        name: r.name,
+        netWorth: r.baseNet + (currentDay - 1) * r.growth,
+        isUser: false
+      }));
+
+      roster.push({
+        name: `${customRestaurantName} (YOU)`,
+        netWorth: totalNetWorth,
+        isUser: true
+      });
+
+      roster.sort((a, b) => b.netWorth - a.netWorth);
+
+      const rowsBox = document.getElementById('leaderboard-rows');
+      rowsBox.innerHTML = '';
+      roster.forEach((chef, index) => {
+        const medal = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index + 1}`));
+        rowsBox.innerHTML += `
+          <div class="leader-row ${chef.isUser ? 'user-row' : ''}">
+            <span>${medal} ${chef.name}</span>
+            <span>🪙 ${chef.netWorth}</span>
           </div>
         `;
       });
     }
 
-    function restartEntireGame() {
-      tone(550, 0.15);
-      coins = 0;
-      basket = [];
-      totalServed = 0;
-      updateCoins(0);
-      showScreen('screen-intro');
+    function updateBankSlider(val) {
+      const deposit = Number(val);
+      const capitalLeft = coins - deposit;
+      document.getElementById('deposit-amount-label').textContent = deposit;
+      document.getElementById('capital-left-label').textContent = capitalLeft;
+      document.getElementById('projected-vault').textContent = bankVault + deposit;
+    }
+
+    function confirmBankAndNextDay() {
+      const slider = document.getElementById('bank-deposit-slider');
+      const deposit = Number(slider.value);
+      bankVault += deposit;
+      coins -= deposit;
+
+      currentDay++;
+      tone(600, 0.15);
+      startDay();
     }
   </script>
 </body>
