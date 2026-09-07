@@ -287,9 +287,12 @@
     }
     .catch-item {
       background: var(--parchment); border: 3px solid var(--wood-dark); border-radius: 16px;
-      padding: 12px 4px; font-size: 34px; cursor: pointer;
+      padding: 10px 4px 8px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
       transition: transform 0.15s ease, opacity 0.3s ease, background 0.2s ease;
     }
+    .catch-item .catch-emoji { font-size: 34px; line-height: 1; }
+    .catch-item .catch-word { font-size: 0.7rem; font-weight: 700; color: var(--wood-dark); line-height: 1.15; text-align: center; }
     .catch-item:hover { transform: scale(1.1); }
     .catch-item:active { transform: scale(0.95); }
     .catch-item.correct { background: #DFF0D8; border-color: var(--hard-c-amber); opacity: 0.4; pointer-events: none; transform: scale(0.9); }
@@ -442,7 +445,9 @@
       .quiz-btns button { padding: 12px; font-size: 0.95rem; }
       .catch-title { font-size: 1.1rem; }
       .catch-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .catch-item { font-size: 26px; padding: 8px 2px; }
+      .catch-item { padding: 8px 2px; }
+      .catch-item .catch-emoji { font-size: 26px; }
+      .catch-item .catch-word { font-size: 0.6rem; }
 
       .market-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
       .item-crate button { font-size: 0.72rem; }
@@ -487,7 +492,7 @@
         <div class="clock-digital" id="clock-digital">09:00 AM</div>
       </div>
       <div class="hud-metrics">
-        <div class="coin-badge" id="coin-badge">💰 <span id="coin-counter">40</span></div>
+        <div class="coin-badge" id="coin-badge">💰 <span id="coin-counter">0</span></div>
         <button class="help-btn" onclick="openInstructions()" title="How to Play">?</button>
       </div>
     </header>
@@ -778,13 +783,16 @@
 
     const CUSTOMERS = ["🦊", "🐼", "🐻", "🐰", "🦁", "🐨"];
 
-    // Ingredient price was lowered from 10 -> 5 coins so kids don't feel priced out
-    // of shopping after only one or two Quest rounds. This keeps the Quest stations
-    // feeling rewarding without making the Market a grind.
-    const ITEM_PRICE = 5;
+    // Ingredient price. Raised from 5 -> 8 coins per item — the Market was
+    // feeling too cheap, letting kids stock up on ingredients without much
+    // Quest income at all.
+    const ITEM_PRICE = 8;
 
     let customRestaurantName = "Chef C's Bistro";
-    let coins = 40;
+    // Starting coins is 0 on purpose: with nothing in the wallet, kids have
+    // to hop into a Phonics Quest (quiz, catch, or word-match) and reel in
+    // a little starting cash before they can shop and open the restaurant.
+    let coins = 0;
     let basket = [];
     let currentCustomer = null;
     let currentRecipe = null;
@@ -930,13 +938,14 @@
       return idx;
     }
 
-    // Price = ingredient cost + a small, slowly-growing profit. Keeping the
-    // profit modest (instead of a big flat bonus) means a dish's payout is
-    // mostly "give back what you spent on ingredients", so kids still need
-    // Quest coins to fund their next order.
+    // Price = ingredient cost + a small FLAT tip (not scaled by tier). Since
+    // higher tiers use more (pricier) ingredients but the tip stays fixed,
+    // the profit margin actually shrinks at higher tiers — selling a dish
+    // mostly just refunds what was spent at the Market, so kids can't coast
+    // on dish profit alone and still need Phonics Quest coins to keep going.
+    const DISH_TIP = 5;
     function computeRecipePrice(req, tierIndex) {
-      const profit = 8 + tierIndex * 3;
-      return req.length * ITEM_PRICE + profit;
+      return req.length * ITEM_PRICE + DISH_TIP;
     }
 
     function showLevelUpToast(label) {
@@ -1191,8 +1200,8 @@
       items.forEach(item => {
         const cell = document.createElement('div');
         cell.className = 'catch-item';
-        cell.textContent = item.emoji;
         cell.title = item.word;
+        cell.innerHTML = `<span class="catch-emoji">${item.emoji}</span><span class="catch-word">${item.word}</span>`;
         cell.onclick = () => handleCatchClick(item, cell);
         grid.appendChild(cell);
       });
@@ -1474,10 +1483,10 @@
 
     function restartEntireGame() {
       tone(550, 0.15);
-      coins = 40;
+      coins = 0;
       basket = [];
       totalServed = 0;
-      updateCoins(40);
+      updateCoins(0);
       showScreen('screen-intro');
     }
   </script>
